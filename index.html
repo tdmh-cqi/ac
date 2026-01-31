@@ -3,159 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CQI | TDMH Air-Intelligence</title>
+    <title>AC-TDMH | CQI Command Center</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.1); }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
-            color: #f8fafc;
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* Mobile/iPad Optimization */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .glass { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; -webkit-tap-highlight-color: transparent; }
         
+        /* Professional Glassmorphism */
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); }
         .glass-card { 
-            background: rgba(15, 23, 42, 0.6); 
+            background: var(--glass); 
             backdrop-filter: blur(10px); 
-            border: 1px solid var(--glass-border);
-            transition: transform 0.2s ease;
+            border: 1px solid var(--glass-border); 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
         }
-        .glass-card:active { transform: scale(0.98); } /* Touch feedback */
+        
+        /* Mobile/iPad Optimizations */
+        @media (max-width: 1024px) {
+            .glass-card:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.08); }
+            input, select, textarea { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+        }
 
-        .status-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
-        .status-glow-red { animation: pulse-red 2s infinite; }
-        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); } }
+        .status-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
+        .status-glow-yellow { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); border-left: 4px solid #eab308; }
+        .status-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); border-left: 4px solid #ef4444; animation: pulse-red 2s infinite; }
+        
+        @keyframes pulse-red { 0%, 100% { border-left-color: #ef4444; } 50% { border-left-color: #7f1d1d; } }
         
         .floor-btn-active { 
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
-            box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.3);
-            border-color: transparent !important;
-            color: white !important;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+            border: none !important; color: white !important;
         }
+
+        .cqi-badge { background: linear-gradient(90deg, #3b82f6, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
     </style>
 </head>
 <body class="pb-10">
 
-    <header class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-4 md:py-6 mb-6">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <header class="glass-panel sticky top-0 z-[100] px-4 py-3 border-b">
+        <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="fas fa-microscope text-white"></i>
+                <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/20">
+                    <i class="fas fa-wind text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-extrabold tracking-tight">CQI <span class="text-blue-500 underline decoration-2 underline-offset-4">TDMH</span></h1>
-                    <p class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-bold leading-none">Continuous Quality Improvement</p>
+                    <h1 class="text-lg font-extrabold tracking-tight leading-none">AC-TDMH</h1>
+                    <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Powered by <span class="cqi-badge">CQI Department</span></p>
                 </div>
             </div>
-
-            <div class="flex gap-2 w-full md:w-auto overflow-x-auto no-scrollbar py-1">
-                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px]">
-                    <span id="count-green" class="text-lg font-black text-green-400 leading-tight">0</span>
-                    <span class="text-[8px] uppercase text-slate-500 font-black">Stable</span>
-                </div>
-                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px] border-b-2 border-yellow-500/50">
-                    <span id="count-yellow" class="text-lg font-black text-yellow-400 leading-tight">0</span>
-                    <span class="text-[8px] uppercase text-slate-500 font-black">Care</span>
-                </div>
-                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px] border-b-2 border-red-500/50">
-                    <span id="count-red" class="text-lg font-black text-red-500 leading-tight">0</span>
-                    <span class="text-[8px] uppercase text-slate-500 font-black">Critical</span>
-                </div>
-                <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-xl text-xs font-bold transition flex items-center border border-white/5">
-                    <i class="fas fa-fingerprint mr-2 text-blue-400"></i> LOGIN
-                </button>
-            </div>
+            
+            <button onclick="toggleAdminAuth()" id="adminBtn" class="glass-card px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 hover:bg-white/10 transition-all">
+                <i class="fas fa-shield-halved text-blue-400"></i>
+                <span id="adminBtnText">Admin Access</span>
+            </button>
         </div>
     </header>
 
-    <main class="container mx-auto px-4">
-        <nav id="floorNav" class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+    <div class="container mx-auto px-4 mt-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div class="glass-card p-4 rounded-3xl text-center">
+                <p id="count-green" class="text-2xl font-black text-green-400">0</p>
+                <p class="text-[9px] uppercase font-bold text-slate-500">Functional</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center">
+                <p id="count-yellow" class="text-2xl font-black text-yellow-400">0</p>
+                <p class="text-[9px] uppercase font-bold text-slate-500">In Service</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center">
+                <p id="count-red" class="text-2xl font-black text-red-500">0</p>
+                <p class="text-[9px] uppercase font-bold text-slate-500">Defective</p>
+            </div>
+            <div class="glass-card p-4 rounded-3xl text-center border-b-2 border-blue-500/50">
+                <p id="count-pms" class="text-2xl font-black text-blue-400">0</p>
+                <p class="text-[9px] uppercase font-bold text-slate-500">PMS Alert</p>
+            </div>
+        </div>
+
+        <nav id="floorNav" class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center">
             </nav>
 
         <div id="adminControls" class="hidden mb-8 animate-in slide-in-from-top-4 duration-300">
-            <div class="bg-blue-600/10 border border-blue-500/30 p-5 rounded-3xl flex justify-between items-center">
-                <div>
-                    <h3 class="font-bold text-blue-400">Inventory Modification Enabled</h3>
-                    <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">CQI Administrative Privileges</p>
+            <div class="bg-blue-600/10 border border-blue-500/30 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <h3 class="font-bold text-blue-400">Authorized Management Mode</h3>
+                    <p class="text-xs text-slate-400">Data synchronization with CQI database enabled.</p>
                 </div>
-                <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-blue-900/40 active:scale-95 transition">
-                    + NEW ASSET
+                <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/40 transition-all active:scale-95 w-full md:w-auto">
+                    <i class="fas fa-plus mr-2"></i>ADD NEW UNIT
                 </button>
             </div>
         </div>
 
         <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             </div>
-    </main>
+    </div>
 
-    <div id="acModal" class="hidden fixed inset-0 z-[100] p-4 flex items-end md:items-center justify-center">
+    <div id="acModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onclick="closeACModal()"></div>
-        <div class="relative bg-slate-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in duration-300">
+        <div class="glass-panel relative w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
             <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 class="font-black text-lg tracking-tight"><i class="fas fa-edit mr-2 text-blue-500"></i>ASSET DATA</h2>
-                <button onclick="closeACModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5"><i class="fas fa-times"></i></button>
+                <h2 id="modalTitle" class="text-xl font-black">Unit Configuration</h2>
+                <button onclick="closeACModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10"><i class="fas fa-times"></i></button>
             </div>
             
-            <form id="acForm" class="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-10">
+            <form id="acForm" class="p-8 grid grid-cols-2 gap-5 max-h-[70vh] overflow-y-auto">
                 <input type="hidden" id="editId">
-                
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Location</label>
-                    <select id="fFloor" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500">
-                        <option value="1">1st Floor</option><option value="2">2nd Floor</option><option value="3">3rd Floor</option>
-                        <option value="4">4th Floor</option><option value="5">5th Floor</option>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Floor Location</label>
+                    <select id="fFloor" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none focus:border-blue-500 transition-colors">
+                        <option value="1">1st Floor</option><option value="2">2nd Floor</option>
+                        <option value="3">3rd Floor</option><option value="4">4th Floor</option>
+                        <option value="5">5th Floor</option>
                     </select>
                 </div>
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Health Status</label>
-                    <select id="fStatus" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500 text-white">
-                        <option value="functional">🟢 Stable</option>
-                        <option value="maintenance">🟡 Servicing</option>
-                        <option value="defective">🔴 Decommissioned</option>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Operational Health</label>
+                    <select id="fStatus" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
+                        <option value="functional">🟢 Functional</option>
+                        <option value="maintenance">🟡 Maintenance</option>
+                        <option value="defective">🔴 Defective</option>
                     </select>
                 </div>
                 <div class="col-span-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Department Name</label>
-                    <input type="text" id="fDept" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="e.g., Surgery Wing" required>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Dept / Specific Area</label>
+                    <input type="text" id="fDept" placeholder="e.g. ICU - Bed 01" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
                 </div>
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Serial ID</label>
-                    <input type="text" id="fUnitID" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="AC-XXXX">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Unit Serial ID</label>
+                    <input type="text" id="fUnitID" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
                 </div>
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Officer</label>
-                    <input type="text" id="fStaff" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="Name">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Assigned Staff</label>
+                    <input type="text" id="fStaff" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
                 </div>
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Next PMS</label>
-                    <input type="date" id="fNextPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Last Service</label>
+                    <input type="date" id="fLastPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
                 </div>
                 <div class="col-span-1">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Completed</label>
-                    <input type="date" id="fCompletion" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm">
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Next Service</label>
+                    <input type="date" id="fNextPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
                 </div>
                 <div class="col-span-2">
-                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Clinical Notes</label>
-                    <textarea id="fNotes" rows="2" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm"></textarea>
+                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Maintenance Log / Notes</label>
+                    <textarea id="fNotes" rows="3" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none"></textarea>
                 </div>
                 <div class="col-span-2 flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition">Authorize Save</button>
-                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-500/10 text-red-500 px-6 rounded-2xl border border-red-500/20"><i class="fas fa-trash"></i></button>
+                    <button type="submit" class="flex-1 bg-blue-600 p-4 rounded-2xl font-bold shadow-lg shadow-blue-900/40">SAVE UNIT DATA</button>
+                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-950/50 text-red-500 border border-red-500/30 px-6 rounded-2xl"><i class="fas fa-trash"></i></button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Core Logic (Refined for Performance)
+        // Keep your existing script logic but update the renderUnitGrid for the new CSS
         let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [
-            { id: '1', floor: 1, status: 'functional', dept: 'Main CQI Office', unitID: 'HQ-01', staff: 'System', nextPMS: '2026-02-15', notes: 'Asset health optimal.' }
+            { id: '1', floor: 1, status: 'functional', dept: 'Information Desk', unitID: 'AC-101', staff: 'CQI-Admin', lastPMS: '2026-01-01', nextPMS: '2026-03-01', notes: 'System online.' }
         ];
         let currentFloor = 1;
         let isAdminActive = false;
@@ -170,10 +177,9 @@
             const nav = document.getElementById('floorNav');
             nav.innerHTML = '';
             for(let i=1; i<=5; i++) {
-                const isActive = currentFloor === i;
                 const btn = document.createElement('button');
-                btn.className = `flex-shrink-0 px-8 py-3 rounded-2xl border border-white/10 text-xs font-black uppercase tracking-widest transition-all ${isActive ? 'floor-btn-active' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`;
-                btn.innerText = `Lvl ${i}`;
+                btn.className = `px-8 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border border-white/10 ${currentFloor === i ? 'floor-btn-active' : 'glass-card text-slate-400'}`;
+                btn.innerText = `FLOOR ${i}`;
                 btn.onclick = () => { currentFloor = i; renderFloorNavigation(); renderUnitGrid(); };
                 nav.appendChild(btn);
             }
@@ -184,79 +190,97 @@
             grid.innerHTML = '';
             const filtered = units.filter(u => parseInt(u.floor) === currentFloor);
 
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 italic">No units registered for this floor level.</div>`;
+                return;
+            }
+
             filtered.forEach(unit => {
                 const isUrgent = checkPMSUrgency(unit.nextPMS);
-                const statusColor = unit.status === 'functional' ? 'green' : (unit.status === 'defective' ? 'red' : 'yellow');
-                const glow = unit.status === 'functional' ? 'status-glow-green' : (unit.status === 'defective' ? 'status-glow-red' : '');
+                const glow = `status-glow-${unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red')}`;
 
                 grid.innerHTML += `
-                    <div class="glass-card rounded-[2.5rem] p-6 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1 bg-${statusColor}-500 ${glow}"></div>
-                        
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="max-w-[70%]">
-                                <h3 class="text-xl font-extrabold text-white truncate">${unit.dept}</h3>
-                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Asset: ${unit.unitID}</p>
+                    <div class="glass-card rounded-[2.5rem] p-6 relative group overflow-hidden ${glow}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-extrabold text-white leading-tight uppercase">${unit.dept}</h3>
+                                <p class="text-[10px] font-bold text-slate-500 tracking-widest">${unit.unitID}</p>
                             </div>
-                            <div class="bg-${statusColor}-500/10 px-3 py-1 rounded-full text-[9px] font-black text-${statusColor}-400 uppercase border border-${statusColor}-500/20">
-                                ${unit.status}
+                            ${isAdminActive ? `
+                                <button onclick="openACModal('${unit.id}')" class="w-10 h-10 glass-card rounded-xl flex items-center justify-center text-blue-400">
+                                    <i class="fas fa-pen text-xs"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+
+                        <div class="flex items-center gap-2 mb-6">
+                            <span class="text-[10px] font-black uppercase px-3 py-1 bg-white/5 rounded-full text-slate-300 border border-white/5">${unit.status}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-black/20 p-3 rounded-2xl">
+                                <p class="text-[9px] font-bold text-slate-500 uppercase">Last PMS</p>
+                                <p class="text-xs font-bold text-slate-300">${unit.lastPMS || '---'}</p>
+                            </div>
+                            <div class="bg-black/20 p-3 rounded-2xl">
+                                <p class="text-[9px] font-bold text-slate-500 uppercase">Next PMS</p>
+                                <p class="text-xs font-bold ${isUrgent ? 'text-red-400 animate-pulse' : 'text-blue-400'}">${unit.nextPMS || '---'}</p>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-2 gap-4 mb-6 bg-white/5 rounded-2xl p-4">
-                            <div>
-                                <span class="text-[8px] font-black text-slate-500 uppercase block mb-1">Schedule</span>
-                                <span class="text-xs font-bold ${isUrgent ? 'text-red-400' : 'text-slate-300'}">${unit.nextPMS || 'N/A'}</span>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 text-[10px]">
+                                <i class="fas fa-user"></i>
                             </div>
-                            <div>
-                                <span class="text-[8px] font-black text-slate-500 uppercase block mb-1">In-Charge</span>
-                                <span class="text-xs font-bold text-slate-300 truncate block">${unit.staff || 'N/A'}</span>
-                            </div>
+                            <span class="text-xs font-semibold text-slate-400">${unit.staff || 'Unassigned'}</span>
                         </div>
 
-                        <p class="text-[11px] text-slate-400 italic mb-6">"${unit.notes || 'No active clinical observations.'}"</p>
-
-                        ${isAdminActive ? `
-                            <button onclick="openACModal('${unit.id}')" class="absolute bottom-6 right-6 w-10 h-10 glass rounded-xl flex items-center justify-center text-blue-400">
-                                <i class="fas fa-pen-nib text-xs"></i>
-                            </button>
-                        ` : ''}
+                        <div class="p-3 bg-white/5 rounded-2xl border border-white/5">
+                             <p class="text-[11px] italic text-slate-400 leading-relaxed">"${unit.notes || 'No recorded observations.'}"</p>
+                        </div>
                     </div>
                 `;
             });
         }
 
+        // --- DASHBOARD LOGIC ---
         function updateDashboardCounters() {
             document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
             document.getElementById('count-yellow').innerText = units.filter(u => u.status === 'maintenance').length;
             document.getElementById('count-red').innerText = units.filter(u => u.status === 'defective').length;
+            document.getElementById('count-pms').innerText = units.filter(u => checkPMSUrgency(u.nextPMS)).length;
         }
 
         function checkPMSUrgency(dateStr) {
             if (!dateStr) return false;
-            const diffDays = Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));
-            return diffDays <= 5;
+            const targetDate = new Date(dateStr);
+            const today = new Date();
+            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+            return diffDays <= 5 && diffDays >= -1;
         }
 
         function toggleAdminAuth() {
             if (!isAdminActive) {
-                const pass = prompt("Enter CQI Authorization Key:");
+                const pass = prompt("Enter CQI Security Code:");
                 if (pass === "admin123") {
                     isAdminActive = true;
                     document.getElementById('adminControls').classList.remove('hidden');
-                    document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock text-green-400 mr-2"></i>AUTHORIZED';
+                    document.getElementById('adminBtn').classList.add('bg-blue-600');
+                    document.getElementById('adminBtnText').innerText = "Admin: ON";
                     renderUnitGrid();
                 }
             } else {
                 isAdminActive = false;
                 document.getElementById('adminControls').classList.add('hidden');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-fingerprint mr-2 text-blue-400"></i> LOGIN';
+                document.getElementById('adminBtn').classList.remove('bg-blue-600');
+                document.getElementById('adminBtnText').innerText = "Admin Access";
                 renderUnitGrid();
             }
         }
 
         function openACModal(id = null) {
-            document.getElementById('acForm').reset();
+            const form = document.getElementById('acForm');
+            form.reset();
             document.getElementById('editId').value = id || '';
             document.getElementById('deleteBtn').classList.toggle('hidden', !id);
             if (id) {
@@ -266,8 +290,8 @@
                 document.getElementById('fDept').value = u.dept;
                 document.getElementById('fUnitID').value = u.unitID;
                 document.getElementById('fStaff').value = u.staff;
+                document.getElementById('fLastPMS').value = u.lastPMS;
                 document.getElementById('fNextPMS').value = u.nextPMS;
-                document.getElementById('fCompletion').value = u.completion;
                 document.getElementById('fNotes').value = u.notes;
             }
             document.getElementById('acModal').classList.remove('hidden');
@@ -275,33 +299,36 @@
 
         function closeACModal() { document.getElementById('acModal').classList.add('hidden'); }
 
-        const acForm = document.getElementById('acForm');
-        acForm.onsubmit = (e) => {
+        document.getElementById('acForm').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('editId').value || Date.now().toString();
             const newUnit = {
-                id,
+                id: id,
                 floor: document.getElementById('fFloor').value,
                 status: document.getElementById('fStatus').value,
                 dept: document.getElementById('fDept').value,
                 unitID: document.getElementById('fUnitID').value,
                 staff: document.getElementById('fStaff').value,
+                lastPMS: document.getElementById('fLastPMS').value,
                 nextPMS: document.getElementById('fNextPMS').value,
-                completion: document.getElementById('fCompletion').value,
                 notes: document.getElementById('fNotes').value
             };
             const idx = units.findIndex(u => u.id === id);
             if (idx > -1) units[idx] = newUnit; else units.push(newUnit);
             localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-            updateDashboardCounters(); renderUnitGrid(); closeACModal();
+            updateDashboardCounters();
+            renderUnitGrid();
+            closeACModal();
         };
 
         function deleteUnit() {
             const id = document.getElementById('editId').value;
-            if (confirm("Decommission this asset permanently?")) {
+            if(confirm("Confirm unit deletion?")) {
                 units = units.filter(u => u.id !== id);
                 localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-                updateDashboardCounters(); renderUnitGrid(); closeACModal();
+                updateDashboardCounters();
+                renderUnitGrid();
+                closeACModal();
             }
         }
 
