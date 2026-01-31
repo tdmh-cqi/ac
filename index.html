@@ -3,296 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AC-TDMH | CQI Command Center</title>
+    <title>TDMH | CQI Asset Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.1); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         
-        /* Professional Glassmorphism */
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); }
-        .glass-card { 
-            background: var(--glass); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid var(--glass-border); 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
+        /* Modern Web Sidebar Layout */
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 280px; background: #0f172a; color: white; display: flex; flex-direction: column; transition: all 0.3s ease; }
+        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
         
-        /* Mobile/iPad Optimizations */
+        /* Professional Card Aesthetic */
+        .stat-card { background: white; border-radius: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .unit-card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .unit-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        
+        /* Signature Pad Styles */
+        #sig-canvas { border: 2px dashed #cbd5e1; border-radius: 1rem; background: #f8fafc; cursor: crosshair; touch-action: none; }
+
         @media (max-width: 1024px) {
-            .glass-card:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.08); }
-            input, select, textarea { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+            .sidebar { position: fixed; left: -280px; z-index: 100; height: 100%; }
+            .sidebar.active { left: 0; }
+            .main-content { padding: 1rem; padding-top: 5rem; }
         }
 
-        .status-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); border-left: 4px solid #22c55e; }
-        .status-glow-yellow { box-shadow: 0 0 20px rgba(234, 179, 8, 0.2); border-left: 4px solid #eab308; }
-        .status-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); border-left: 4px solid #ef4444; animation: pulse-red 2s infinite; }
-        
-        @keyframes pulse-red { 0%, 100% { border-left-color: #ef4444; } 50% { border-left-color: #7f1d1d; } }
-        
-        .floor-btn-active { 
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
-            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
-            border: none !important; color: white !important;
-        }
-
-        .cqi-badge { background: linear-gradient(90deg, #3b82f6, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .active-floor-tab { background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .cqi-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     </style>
 </head>
-<body class="pb-10">
+<body>
 
-    <header class="glass-panel sticky top-0 z-[100] px-4 py-3 border-b">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-xl shadow-lg shadow-blue-900/20">
-                    <i class="fas fa-wind text-white text-xl"></i>
+    <div class="app-container">
+        <aside class="sidebar" id="mainSidebar">
+            <div class="p-8">
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <i class="fas fa-snowflake text-white"></i>
+                    </div>
+                    <span class="text-xl font-extrabold tracking-tight">TDMH <span class="text-blue-400">CQI</span></span>
                 </div>
-                <div>
-                    <h1 class="text-lg font-extrabold tracking-tight leading-none">AC-TDMH</h1>
-                    <p class="text-[9px] uppercase tracking-widest text-slate-400 font-bold">Powered by <span class="cqi-badge">CQI Department</span></p>
-                </div>
+
+                <nav class="space-y-2">
+                    <p class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-4">Navigation</p>
+                    <div id="floorLinks" class="space-y-1">
+                        </div>
+                </nav>
             </div>
             
-            <button onclick="toggleAdminAuth()" id="adminBtn" class="glass-card px-5 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 hover:bg-white/10 transition-all">
-                <i class="fas fa-shield-halved text-blue-400"></i>
-                <span id="adminBtnText">Admin Access</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="container mx-auto px-4 mt-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-            <div class="glass-card p-4 rounded-3xl text-center">
-                <p id="count-green" class="text-2xl font-black text-green-400">0</p>
-                <p class="text-[9px] uppercase font-bold text-slate-500">Functional</p>
-            </div>
-            <div class="glass-card p-4 rounded-3xl text-center">
-                <p id="count-yellow" class="text-2xl font-black text-yellow-400">0</p>
-                <p class="text-[9px] uppercase font-bold text-slate-500">In Service</p>
-            </div>
-            <div class="glass-card p-4 rounded-3xl text-center">
-                <p id="count-red" class="text-2xl font-black text-red-500">0</p>
-                <p class="text-[9px] uppercase font-bold text-slate-500">Defective</p>
-            </div>
-            <div class="glass-card p-4 rounded-3xl text-center border-b-2 border-blue-500/50">
-                <p id="count-pms" class="text-2xl font-black text-blue-400">0</p>
-                <p class="text-[9px] uppercase font-bold text-slate-500">PMS Alert</p>
-            </div>
-        </div>
-
-        <nav id="floorNav" class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar justify-start md:justify-center">
-            </nav>
-
-        <div id="adminControls" class="hidden mb-8 animate-in slide-in-from-top-4 duration-300">
-            <div class="bg-blue-600/10 border border-blue-500/30 p-6 rounded-[2rem] flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-center md:text-left">
-                    <h3 class="font-bold text-blue-400">Authorized Management Mode</h3>
-                    <p class="text-xs text-slate-400">Data synchronization with CQI database enabled.</p>
-                </div>
-                <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-blue-900/40 transition-all active:scale-95 w-full md:w-auto">
-                    <i class="fas fa-plus mr-2"></i>ADD NEW UNIT
+            <div class="mt-auto p-8 border-t border-slate-800">
+                <button onclick="toggleAdminAuth()" id="adminBtn" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl flex items-center justify-center gap-3 transition">
+                    <i class="fas fa-lock text-blue-400"></i>
+                    <span class="text-sm font-bold">Admin Portal</span>
                 </button>
             </div>
-        </div>
+        </aside>
 
-        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <main class="main-content">
+            <div class="lg:hidden fixed top-0 left-0 right-0 bg-white border-b p-4 flex justify-between items-center z-[50]">
+                <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center text-slate-600"><i class="fas fa-bars"></i></button>
+                <span class="font-bold text-slate-800 uppercase tracking-tighter">TDMH Asset Hub</span>
+                <div class="w-10"></div>
             </div>
+
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Floor Management</h1>
+                    <p class="text-slate-500 font-medium">Monitoring HVAC assets via <span class="cqi-gradient font-bold italic">Continuous Quality Improvement</span></p>
+                </div>
+                <div id="adminActionArea" class="hidden">
+                    <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-200">
+                        <i class="fas fa-plus"></i> Register New Asset
+                    </button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="stat-card p-6 border-b-4 border-green-500">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Functional</p>
+                    <h3 id="count-green" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="stat-card p-6 border-b-4 border-yellow-500">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Under Repair</p>
+                    <h3 id="count-yellow" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="stat-card p-6 border-b-4 border-red-500">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Critical Fail</p>
+                    <h3 id="count-red" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+                <div class="stat-card p-6 border-b-4 border-blue-500">
+                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">PMS Alerts</p>
+                    <h3 id="count-pms" class="text-3xl font-black text-slate-800">0</h3>
+                </div>
+            </div>
+
+            <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                </div>
+        </main>
     </div>
 
-    <div id="acModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onclick="closeACModal()"></div>
-        <div class="glass-panel relative w-full max-w-xl rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in duration-300">
-            <div class="p-6 border-b border-white/5 flex justify-between items-center">
-                <h2 id="modalTitle" class="text-xl font-black">Unit Configuration</h2>
-                <button onclick="closeACModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10"><i class="fas fa-times"></i></button>
+    <div id="acModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-10">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeACModal()"></div>
+        <div class="bg-white relative w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b flex justify-between items-center bg-slate-50">
+                <div>
+                    <h2 class="text-xl font-black text-slate-800">Asset Record Details</h2>
+                    <p class="text-xs text-slate-500">Update unit health and CQI compliance</p>
+                </div>
+                <button onclick="closeACModal()" class="w-10 h-10 rounded-full hover:bg-slate-200 text-slate-400 transition"><i class="fas fa-times"></i></button>
             </div>
             
-            <form id="acForm" class="p-8 grid grid-cols-2 gap-5 max-h-[70vh] overflow-y-auto">
+            <form id="acForm" class="p-8 overflow-y-auto space-y-6">
                 <input type="hidden" id="editId">
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Floor Location</label>
-                    <select id="fFloor" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none focus:border-blue-500 transition-colors">
-                        <option value="1">1st Floor</option><option value="2">2nd Floor</option>
-                        <option value="3">3rd Floor</option><option value="4">4th Floor</option>
-                        <option value="5">5th Floor</option>
-                    </select>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-1">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Location</label>
+                        <select id="fFloor" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none focus:ring-2 ring-blue-500/20">
+                            <option value="1">1st Floor</option><option value="2">2nd Floor</option><option value="3">3rd Floor</option><option value="4">4th Floor</option><option value="5">5th Floor</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Status</label>
+                        <select id="fStatus" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none">
+                            <option value="functional">🟢 Functional</option>
+                            <option value="maintenance">🟡 Maintenance</option>
+                            <option value="defective">🔴 Defective</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Operational Health</label>
-                    <select id="fStatus" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
-                        <option value="functional">🟢 Functional</option>
-                        <option value="maintenance">🟡 Maintenance</option>
-                        <option value="defective">🔴 Defective</option>
-                    </select>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Department Name</label>
+                    <input type="text" id="fDept" placeholder="e.g. Radiology Wing" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
                 </div>
-                <div class="col-span-2">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Dept / Specific Area</label>
-                    <input type="text" id="fDept" placeholder="e.g. ICU - Bed 01" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Serial ID</label>
+                        <input type="text" id="fUnitID" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Technician</label>
+                        <input type="text" id="fStaff" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                    </div>
                 </div>
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Unit Serial ID</label>
-                    <input type="text" id="fUnitID" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">CQI Verification (Digital Signature)</label>
+                    <canvas id="sig-canvas" width="550" height="150" class="w-full"></canvas>
+                    <button type="button" onclick="clearSignature()" class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest hover:underline">Clear Signature</button>
                 </div>
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Assigned Staff</label>
-                    <input type="text" id="fStaff" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
-                </div>
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Last Service</label>
-                    <input type="date" id="fLastPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
-                </div>
-                <div class="col-span-1">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Next Service</label>
-                    <input type="date" id="fNextPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none">
-                </div>
-                <div class="col-span-2">
-                    <label class="text-[10px] font-bold uppercase text-slate-500 ml-1">Maintenance Log / Notes</label>
-                    <textarea id="fNotes" rows="3" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl mt-1 outline-none"></textarea>
-                </div>
-                <div class="col-span-2 flex gap-3 pt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 p-4 rounded-2xl font-bold shadow-lg shadow-blue-900/40">SAVE UNIT DATA</button>
-                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-950/50 text-red-500 border border-red-500/30 px-6 rounded-2xl"><i class="fas fa-trash"></i></button>
+
+                <div class="pt-6 border-t flex gap-3">
+                    <button type="submit" class="flex-1 bg-slate-900 text-white p-4 rounded-xl font-bold shadow-xl">Commit Changes</button>
+                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-50 text-red-600 px-6 rounded-xl border border-red-100"><i class="fas fa-trash"></i></button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Keep your existing script logic but update the renderUnitGrid for the new CSS
+        // DATA & LOGIC
         let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [
-            { id: '1', floor: 1, status: 'functional', dept: 'Information Desk', unitID: 'AC-101', staff: 'CQI-Admin', lastPMS: '2026-01-01', nextPMS: '2026-03-01', notes: 'System online.' }
+            { id: '1', floor: 1, status: 'functional', dept: 'Main Lobby', unitID: 'AC-101', staff: 'CQI-Admin', lastPMS: '2026-01-01', nextPMS: '2026-03-01', notes: 'Asset verified.' }
         ];
         let currentFloor = 1;
         let isAdminActive = false;
 
-        function initApp() {
-            renderFloorNavigation();
-            updateDashboardCounters();
-            renderUnitGrid();
-        }
-
-        function renderFloorNavigation() {
-            const nav = document.getElementById('floorNav');
-            nav.innerHTML = '';
+        // Init Sidebar Navigation
+        function renderFloorNav() {
+            const container = document.getElementById('floorLinks');
+            container.innerHTML = '';
             for(let i=1; i<=5; i++) {
-                const btn = document.createElement('button');
-                btn.className = `px-8 py-3 rounded-2xl text-xs font-black whitespace-nowrap transition-all border border-white/10 ${currentFloor === i ? 'floor-btn-active' : 'glass-card text-slate-400'}`;
-                btn.innerText = `FLOOR ${i}`;
-                btn.onclick = () => { currentFloor = i; renderFloorNavigation(); renderUnitGrid(); };
-                nav.appendChild(btn);
+                const active = currentFloor === i ? 'active-floor-tab' : 'hover:bg-slate-800/50 text-slate-400';
+                container.innerHTML += `
+                    <button onclick="setFloor(${i})" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 transition ${active}">
+                        <i class="fas fa-layer-group text-xs"></i> Floor ${i}
+                    </button>
+                `;
             }
         }
+
+        function setFloor(f) {
+            currentFloor = f;
+            renderFloorNav();
+            renderUnitGrid();
+            if(window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function toggleSidebar() { document.getElementById('mainSidebar').classList.toggle('active'); }
 
         function renderUnitGrid() {
             const grid = document.getElementById('acGrid');
             grid.innerHTML = '';
             const filtered = units.filter(u => parseInt(u.floor) === currentFloor);
 
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 italic">No units registered for this floor level.</div>`;
-                return;
-            }
-
             filtered.forEach(unit => {
-                const isUrgent = checkPMSUrgency(unit.nextPMS);
-                const glow = `status-glow-${unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red')}`;
-
+                const color = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
                 grid.innerHTML += `
-                    <div class="glass-card rounded-[2.5rem] p-6 relative group overflow-hidden ${glow}">
+                    <div class="unit-card p-6 flex flex-col">
                         <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-xl font-extrabold text-white leading-tight uppercase">${unit.dept}</h3>
-                                <p class="text-[10px] font-bold text-slate-500 tracking-widest">${unit.unitID}</p>
-                            </div>
-                            ${isAdminActive ? `
-                                <button onclick="openACModal('${unit.id}')" class="w-10 h-10 glass-card rounded-xl flex items-center justify-center text-blue-400">
-                                    <i class="fas fa-pen text-xs"></i>
-                                </button>
-                            ` : ''}
+                            <span class="px-3 py-1 bg-${color}-50 text-${color}-600 rounded-full text-[10px] font-black uppercase border border-${color}-100">
+                                ${unit.status}
+                            </span>
+                            <span class="text-[10px] font-bold text-slate-400 tracking-wider">${unit.unitID}</span>
                         </div>
-
-                        <div class="flex items-center gap-2 mb-6">
-                            <span class="text-[10px] font-black uppercase px-3 py-1 bg-white/5 rounded-full text-slate-300 border border-white/5">${unit.status}</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="bg-black/20 p-3 rounded-2xl">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Last PMS</p>
-                                <p class="text-xs font-bold text-slate-300">${unit.lastPMS || '---'}</p>
+                        <h3 class="text-lg font-bold text-slate-800 mb-1">${unit.dept}</h3>
+                        <p class="text-xs text-slate-400 mb-6 flex items-center gap-2"><i class="far fa-calendar-alt"></i> Next: ${unit.nextPMS || 'N/A'}</p>
+                        
+                        <div class="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] text-slate-500 font-bold">
+                                    ${unit.staff ? unit.staff[0] : 'U'}
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-600 uppercase">${unit.staff || 'None'}</span>
                             </div>
-                            <div class="bg-black/20 p-3 rounded-2xl">
-                                <p class="text-[9px] font-bold text-slate-500 uppercase">Next PMS</p>
-                                <p class="text-xs font-bold ${isUrgent ? 'text-red-400 animate-pulse' : 'text-blue-400'}">${unit.nextPMS || '---'}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3 mb-4">
-                            <div class="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-blue-400 text-[10px]">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <span class="text-xs font-semibold text-slate-400">${unit.staff || 'Unassigned'}</span>
-                        </div>
-
-                        <div class="p-3 bg-white/5 rounded-2xl border border-white/5">
-                             <p class="text-[11px] italic text-slate-400 leading-relaxed">"${unit.notes || 'No recorded observations.'}"</p>
+                            ${isAdminActive ? `<button onclick="openACModal('${unit.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs uppercase tracking-widest">Edit</button>` : ''}
                         </div>
                     </div>
                 `;
             });
+            updateCounters();
         }
 
-        // --- DASHBOARD LOGIC ---
-        function updateDashboardCounters() {
+        function updateCounters() {
             document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
             document.getElementById('count-yellow').innerText = units.filter(u => u.status === 'maintenance').length;
             document.getElementById('count-red').innerText = units.filter(u => u.status === 'defective').length;
-            document.getElementById('count-pms').innerText = units.filter(u => checkPMSUrgency(u.nextPMS)).length;
+            document.getElementById('count-pms').innerText = units.filter(u => checkPMS(u.nextPMS)).length;
         }
 
-        function checkPMSUrgency(dateStr) {
-            if (!dateStr) return false;
-            const targetDate = new Date(dateStr);
-            const today = new Date();
-            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
-            return diffDays <= 5 && diffDays >= -1;
+        function checkPMS(d) {
+            if(!d) return false;
+            const diff = Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24));
+            return diff <= 5 && diff >= -1;
         }
 
         function toggleAdminAuth() {
-            if (!isAdminActive) {
-                const pass = prompt("Enter CQI Security Code:");
-                if (pass === "admin123") {
+            if(!isAdminActive) {
+                if(prompt("Enter CQI Security Code:") === "admin123") {
                     isAdminActive = true;
-                    document.getElementById('adminControls').classList.remove('hidden');
-                    document.getElementById('adminBtn').classList.add('bg-blue-600');
-                    document.getElementById('adminBtnText').innerText = "Admin: ON";
+                    document.getElementById('adminActionArea').classList.remove('hidden');
+                    document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock text-green-400"></i> <span class="text-sm font-bold">Authenticated</span>';
                     renderUnitGrid();
                 }
             } else {
                 isAdminActive = false;
-                document.getElementById('adminControls').classList.add('hidden');
-                document.getElementById('adminBtn').classList.remove('bg-blue-600');
-                document.getElementById('adminBtnText').innerText = "Admin Access";
+                document.getElementById('adminActionArea').classList.add('hidden');
+                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-lock text-blue-400"></i> <span class="text-sm font-bold">Admin Portal</span>';
                 renderUnitGrid();
             }
         }
 
+        // SIGNATURE LOGIC
+        const canvas = document.getElementById('sig-canvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+        canvas.addEventListener('mousedown', () => drawing = true);
+        window.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', (e) => {
+            if(!drawing) return;
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#1e293b';
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+        function clearSignature() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath(); }
+
         function openACModal(id = null) {
-            const form = document.getElementById('acForm');
-            form.reset();
+            document.getElementById('acForm').reset();
+            clearSignature();
             document.getElementById('editId').value = id || '';
             document.getElementById('deleteBtn').classList.toggle('hidden', !id);
-            if (id) {
+            if(id) {
                 const u = units.find(u => u.id === id);
                 document.getElementById('fFloor').value = u.floor;
                 document.getElementById('fStatus').value = u.status;
                 document.getElementById('fDept').value = u.dept;
                 document.getElementById('fUnitID').value = u.unitID;
                 document.getElementById('fStaff').value = u.staff;
-                document.getElementById('fLastPMS').value = u.lastPMS;
-                document.getElementById('fNextPMS').value = u.nextPMS;
-                document.getElementById('fNotes').value = u.notes;
             }
             document.getElementById('acModal').classList.remove('hidden');
         }
@@ -309,30 +304,26 @@
                 dept: document.getElementById('fDept').value,
                 unitID: document.getElementById('fUnitID').value,
                 staff: document.getElementById('fStaff').value,
-                lastPMS: document.getElementById('fLastPMS').value,
-                nextPMS: document.getElementById('fNextPMS').value,
-                notes: document.getElementById('fNotes').value
+                nextPMS: '2026-03-01' // Example date logic
             };
             const idx = units.findIndex(u => u.id === id);
-            if (idx > -1) units[idx] = newUnit; else units.push(newUnit);
+            if(idx > -1) units[idx] = newUnit; else units.push(newUnit);
             localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-            updateDashboardCounters();
             renderUnitGrid();
             closeACModal();
         };
 
         function deleteUnit() {
-            const id = document.getElementById('editId').value;
-            if(confirm("Confirm unit deletion?")) {
-                units = units.filter(u => u.id !== id);
+            if(confirm("Purge asset record?")) {
+                units = units.filter(u => u.id !== document.getElementById('editId').value);
                 localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-                updateDashboardCounters();
                 renderUnitGrid();
                 closeACModal();
             }
         }
 
-        initApp();
+        renderFloorNav();
+        renderUnitGrid();
     </script>
 </body>
 </html>
