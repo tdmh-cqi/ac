@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC-TDMH | Professional Cloud Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .pms-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .floor-tab-active { background-color: #dbeafe !important; border-color: #3b82f6 !important; color: #1d4ed8 !important; font-weight: 700; }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+    <div id="cloudStatus" class="bg-slate-900 text-[10px] text-slate-400 py-1 px-4 flex justify-between items-center">
+        <span>Cloud Database: <span id="statusText" class="text-blue-400 font-bold uppercase tracking-widest">Checking...</span></span>
+        <span id="lastUpdated">Last Sync: Never</span>
+    </div>
+
+    <header class="bg-slate-800 text-white p-4 md:p-6 shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight">AC-TDMH <span class="font-light text-slate-400 text-sm italic">v1.2 Cloud</span></h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Total Maintenance & Health System</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="initApp()" class="bg-slate-700 hover:bg-slate-600 p-2 rounded-lg transition" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full text-sm font-semibold transition flex items-center shadow-md">
+                        <i class="fas fa-lock mr-2"></i>Admin Login
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-green-500 shadow-inner">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Functional</p>
+                    <p id="count-green" class="text-xl font-bold text-green-400">0</p>
+                </div>
+                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-yellow-500 shadow-inner">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Maintenance</p>
+                    <p id="count-yellow" class="text-xl font-bold text-yellow-400">0</p>
+                </div>
+                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-red-500 shadow-inner">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold">Defective</p>
+                    <p id="count-red" class="text-xl font-bold text-red-400">0</p>
+                </div>
+                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-blue-400 shadow-inner">
+                    <p class="text-[10px] text-gray-400 uppercase font-bold text-blue-300 italic">5-Day PMS</p>
+                    <p id="count-pms" class="text-xl font-bold text-blue-300">0</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4">
+        <nav id="floorNav" class="flex flex-wrap gap-2 mb-8 justify-center md:justify-start">
+            </nav>
+
+        <div id="adminControls" class="hidden mb-8 p-6 bg-white rounded-2xl border-2 border-dashed border-blue-200 flex justify-between items-center transition-all">
+            <div>
+                <h3 class="font-bold text-blue-800 text-lg">Admin Management</h3>
+                <p class="text-sm text-gray-500 italic">Editing changes will sync directly to Google Sheets.</p>
+            </div>
+            <button onclick="openACModal()" class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl shadow-lg transition transform hover:scale-105">
+                <i class="fas fa-plus mr-2"></i>Add Unit
+            </button>
+        </div>
+
+        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+    </main>
+
+    <div id="acModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
+                <h2 id="modalTitle" class="font-bold text-lg">Configure AC Unit</h2>
+                <button onclick="closeACModal()" class="text-slate-400 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="acForm" class="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
+                <input type="hidden" id="editId">
+                
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Floor Location</label>
+                    <select id="fFloor" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm bg-gray-50 focus:border-blue-500 outline-none" required>
+                        <option value="1">1st Floor</option>
+                        <option value="2">2nd Floor</option>
+                        <option value="3">3rd Floor</option>
+                        <option value="4">4th Floor</option>
+                        <option value="5">5th Floor</option>
+                    </select>
+                </div>
+                
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Status Color</label>
+                    <select id="fStatus" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none" required>
+                        <option value="functional">🟢 Functional</option>
+                        <option value="maintenance">🟡 Maintenance</option>
+                        <option value="defective">🔴 Replacement / Defective</option>
+                    </select>
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Department / Room</label>
+                    <input type="text" id="fDept" placeholder="e.g. Surgery - Ward A" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none" required>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Unit ID Tag</label>
+                    <input type="text" id="fUnitID" placeholder="AC-XXXX" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none" required>
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Maintenance Staff</label>
+                    <input type="text" id="fStaff" placeholder="Assign Staff" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none">
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Last PMS Date</label>
+                    <input type="date" id="fLastPMS" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none">
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Next Scheduled PMS</label>
+                    <input type="date" id="fNextPMS" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none">
+                </div>
+
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Notes / Diagnostic Report</label>
+                    <textarea id="fNotes" rows="2" class="w-full border-2 border-gray-100 p-3 rounded-xl text-sm focus:border-blue-500 outline-none" placeholder="Add specific details..."></textarea>
+                </div>
+
+                <div class="col-span-2 flex gap-3 mt-4">
+                    <button type="submit" id="saveBtn" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">Save To Cloud</button>
+                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-50 text-red-600 px-6 py-3 rounded-xl hover:bg-red-100 transition"><i class="fas fa-trash"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypU-29NLUWmg6AGwDr9SvjecxRzDJkOszQlOVrZl5XYPasl8-fk6jKhuH67agWXUsB/exec";
+        const ADMIN_PASS = "admin123";
+
+        // --- STATE ---
+        let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [];
+        let currentFloor = 1;
+        let isAdminActive = false;
+
+        async function initApp() {
+            document.getElementById('statusText').innerText = "Syncing...";
+            renderFloorNavigation();
+            
+            try {
+                // Fetch from Google Sheets
+                const response = await fetch(SCRIPT_URL);
+                const cloudData = await response.json();
+                if (cloudData && cloudData.length > 0) {
+                    units = cloudData;
+                    localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
+                    document.getElementById('statusText').innerText = "Online";
+                    document.getElementById('lastUpdated').innerText = "Sync: " + new Date().toLocaleTimeString();
+                }
+            } catch (e) {
+                console.error("Cloud fetch error:", e);
+                document.getElementById('statusText').innerText = "Offline (Local)";
+            }
+            
+            updateDashboardCounters();
+            renderUnitGrid();
+        }
+
+        // --- UI LOGIC ---
+        function renderFloorNavigation() {
+            const nav = document.getElementById('floorNav');
+            nav.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                const isActive = currentFloor === i;
+                nav.innerHTML += `
+                    <button onclick="setFloor(${i})" class="px-6 py-2 rounded-full border transition-all text-sm font-medium ${isActive ? 'floor-tab-active shadow-md' : 'bg-white hover:bg-gray-100 text-gray-600 border-gray-200'}">
+                        ${i}${getOrdinal(i)} Floor
+                    </button>`;
+            }
+        }
+
+        function renderUnitGrid() {
+            const grid = document.getElementById('acGrid');
+            grid.innerHTML = '';
+            
+            const filteredUnits = units.filter(u => parseInt(u.floor) === currentFloor);
+
+            if (filteredUnits.length === 0) {
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 italic">No units registered on this floor.</div>`;
+                return;
+            }
+
+            filteredUnits.forEach(unit => {
+                const isUrgent = checkPMSUrgency(unit.nextpms || unit.nextPMS);
+                const color = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative group transition hover:shadow-xl">
+                        <div class="h-3 bg-${color}-500"></div>
+                        ${isAdminActive ? `
+                            <button onclick="openACModal('${unit.id}')" class="absolute top-6 right-6 bg-white shadow p-2 rounded-full hover:text-blue-600 opacity-0 group-hover:opacity-100 transition">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        ` : ''}
+                        <div class="p-6">
+                            <h3 class="font-bold text-gray-800 text-lg">${unit.dept}</h3>
+                            <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4">ID: ${unit.unitid || unit.unitID}</p>
+                            
+                            <div class="flex items-center mb-6">
+                                <span class="w-3 h-3 rounded-full bg-${color}-500 mr-2"></span>
+                                <span class="text-${color}-600 font-black text-xs uppercase">${unit.status}</span>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4 border-y border-gray-50 py-4 mb-4">
+                                <div>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase leading-none">Last PMS</p>
+                                    <p class="text-sm font-semibold mt-1">${unit.lastpms || unit.lastPMS || '--'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase leading-none">Next PMS</p>
+                                    <p class="text-sm font-semibold mt-1 ${isUrgent ? 'text-red-500 pms-pulse font-bold' : 'text-blue-600'}">
+                                        ${unit.nextpms || unit.nextPMS || '--'}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p class="text-[11px] text-gray-500 mb-1"><strong>Staff:</strong> ${unit.staff || 'N/A'}</p>
+                            <div class="bg-gray-50 p-3 rounded-xl text-[11px] italic text-gray-500 leading-relaxed">
+                                "${unit.notes || 'No notes.'}"
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- CORE FUNCTIONS ---
+        async function saveData() {
+            const formData = {
+                id: document.getElementById('editId').value || "UID-" + Date.now(),
+                floor: document.getElementById('fFloor').value,
+                status: document.getElementById('fStatus').value,
+                dept: document.getElementById('fDept').value,
+                unitID: document.getElementById('fUnitID').value,
+                staff: document.getElementById('fStaff').value,
+                lastPMS: document.getElementById('fLastPMS').value,
+                nextPMS: document.getElementById('fNextPMS').value,
+                notes: document.getElementById('fNotes').value
+            };
+
+            // Instant UI Update
+            const idx = units.findIndex(u => u.id === formData.id);
+            if(idx > -1) units[idx] = formData; else units.push(formData);
+            
+            localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
+            renderUnitGrid();
+            updateDashboardCounters();
+            closeACModal();
+
+            // Cloud Sync
+            document.getElementById('statusText').innerText = "Syncing Changes...";
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(formData)
+                });
+                document.getElementById('statusText').innerText = "Online";
+                document.getElementById('lastUpdated').innerText = "Saved: " + new Date().toLocaleTimeString();
+            } catch (e) {
+                document.getElementById('statusText').innerText = "Sync Failed (Local Only)";
+            }
+        }
+
+        function updateDashboardCounters() {
+            document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
+            document.getElementById('count-yellow').innerText = units.filter(u => u.status === 'maintenance').length;
+            document.getElementById('count-red').innerText = units.filter(u => u.status === 'defective').length;
+            document.getElementById('count-pms').innerText = units.filter(u => checkPMSUrgency(u.nextpms || u.nextPMS)).length;
+        }
+
+        function checkPMSUrgency(dateStr) {
+            if (!dateStr) return false;
+            const targetDate = new Date(dateStr);
+            const today = new Date();
+            const diffDays = Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24));
+            return diffDays <= 5 && diffDays >= -1;
+        }
+
+        function toggleAdminAuth() {
+            if (!isAdminActive) {
+                const pass = prompt("Enter Admin Password:");
+                if (pass === ADMIN_PASS) {
+                    isAdminActive = true;
+                    document.getElementById('adminControls').classList.remove('hidden');
+                    document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock mr-2"></i>Admin Mode';
+                    document.getElementById('adminBtn').className = "bg-green-600 px-6 py-2 rounded-full text-sm font-semibold transition flex items-center shadow-md";
+                }
+            } else {
+                isAdminActive = false;
+                document.getElementById('adminControls').classList.add('hidden');
+                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-lock mr-2"></i>Admin Login';
+                document.getElementById('adminBtn').className = "bg-blue-600 px-6 py-2 rounded-full text-sm font-semibold transition flex items-center shadow-md";
+            }
+            renderUnitGrid();
+        }
+
+        // --- HELPERS ---
+        function setFloor(f) { currentFloor = f; renderFloorNavigation(); renderUnitGrid(); }
+        function getOrdinal(i) { const j = i % 10, k = i % 100; if (j == 1 && k != 11) return "st"; if (j == 2 && k != 12) return "nd"; if (j == 3 && k != 13) return "rd"; return "th"; }
+        function closeACModal() { document.getElementById('acModal').classList.add('hidden'); }
+        
+        function openACModal(id = null) {
+            document.getElementById('acForm').reset();
+            document.getElementById('editId').value = id || '';
+            document.getElementById('deleteBtn').classList.toggle('hidden', !id);
+            
+            if (id) {
+                const u = units.find(u => u.id === id);
+                document.getElementById('fFloor').value = u.floor;
+                document.getElementById('fStatus').value = u.status;
+                document.getElementById('fDept').value = u.dept;
+                document.getElementById('fUnitID').value = u.unitid || u.unitID;
+                document.getElementById('fStaff').value = u.staff;
+                document.getElementById('fLastPMS').value = u.lastpms || u.lastPMS;
+                document.getElementById('fNextPMS').value = u.nextpms || u.nextPMS;
+                document.getElementById('fNotes').value = u.notes;
+            }
+            document.getElementById('acModal').classList.remove('hidden');
+        }
+
+        document.getElementById('acForm').onsubmit = (e) => { e.preventDefault(); saveData(); };
+
+        // INITIALIZE
+        initApp();
+    </script>
+</body>
+</html>
