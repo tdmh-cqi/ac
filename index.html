@@ -3,348 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AC-TDMH | AeroStream Dashboard</title>
+    <title>CQI | TDMH Air-Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f8fafc; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .neon-border-green { border-bottom: 4px solid #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
-        .neon-border-yellow { border-bottom: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
-        .neon-border-red { border-bottom: 4px solid #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
-        .pms-glow { animation: glow 1.5s ease-in-out infinite alternate; }
-        @keyframes glow { from { box-shadow: 0 0 5px #3b82f6; } to { box-shadow: 0 0 20px #3b82f6, 0 0 30px #1d4ed8; } }
-        .floor-btn-active { background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important; color: white !important; transform: scale(1.1); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5); }
-        .card-hover:hover { transform: translateY(-8px); transition: all 0.3s ease; }
-        /* iPad optimization: Prevent content from hiding behind keyboard */
-        input, select, textarea { font-size: 16px !important; color: black !important; } 
+        :root { --glass: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: #f8fafc;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Mobile/iPad Optimization */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .glass { background: var(--glass); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); }
+        
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid var(--glass-border);
+            transition: transform 0.2s ease;
+        }
+        .glass-card:active { transform: scale(0.98); } /* Touch feedback */
+
+        .status-glow-green { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+        .status-glow-red { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 5px rgba(239, 68, 68, 0.2); } 50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); } }
+        
+        .floor-btn-active { 
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); 
+            box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.3);
+            border-color: transparent !important;
+            color: white !important;
+        }
     </style>
 </head>
-<body class="overflow-x-hidden pb-24">
+<body class="pb-10">
 
-    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full z-0"></div>
-    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full z-0"></div>
-
-    <div class="relative z-10 px-6 py-2 flex justify-between items-center text-[11px] font-bold tracking-tighter uppercase text-slate-400">
-        <div class="flex items-center gap-2">
-            <span id="statusDot" class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-            <span id="statusText">System Initializing...</span>
-        </div>
-        <div id="lastUpdated">SYNC: NONE</div>
-    </div>
-
-    <header class="relative z-10 container mx-auto px-6 py-8">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-center md:text-left">
-                <h1 class="text-4xl font-extrabold tracking-tighter italic">AERO<span class="text-blue-500">STREAM</span></h1>
-                <p class="text-slate-400 font-medium tracking-[0.3em] text-xs uppercase mt-[-4px]">TDMH Aircon Management</p>
+    <header class="sticky top-0 z-50 glass border-b border-white/10 px-4 py-4 md:py-6 mb-6">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="fas fa-microscope text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight">CQI <span class="text-blue-500 underline decoration-2 underline-offset-4">TDMH</span></h1>
+                    <p class="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-bold leading-none">Continuous Quality Improvement</p>
+                </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="initApp()" class="glass p-4 rounded-2xl hover:bg-slate-700 transition">
-                    <i class="fas fa-sync-alt text-blue-400"></i>
+
+            <div class="flex gap-2 w-full md:w-auto overflow-x-auto no-scrollbar py-1">
+                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px]">
+                    <span id="count-green" class="text-lg font-black text-green-400 leading-tight">0</span>
+                    <span class="text-[8px] uppercase text-slate-500 font-black">Stable</span>
+                </div>
+                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px] border-b-2 border-yellow-500/50">
+                    <span id="count-yellow" class="text-lg font-black text-yellow-400 leading-tight">0</span>
+                    <span class="text-[8px] uppercase text-slate-500 font-black">Care</span>
+                </div>
+                <div class="glass px-4 py-2 rounded-xl flex flex-col items-center min-w-[80px] border-b-2 border-red-500/50">
+                    <span id="count-red" class="text-lg font-black text-red-500 leading-tight">0</span>
+                    <span class="text-[8px] uppercase text-slate-500 font-black">Critical</span>
+                </div>
+                <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-xl text-xs font-bold transition flex items-center border border-white/5">
+                    <i class="fas fa-fingerprint mr-2 text-blue-400"></i> LOGIN
                 </button>
-                <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-2xl text-sm font-bold transition flex items-center shadow-xl hover:opacity-90">
-                    <i class="fas fa-fingerprint mr-2"></i> ADMIN ACCESS
-                </button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
-            <div class="glass p-5 rounded-3xl border-t-2 border-green-500/50">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Cooling</span>
-                    <i class="fas fa-snowflake text-green-500"></i>
-                </div>
-                <p id="count-green" class="text-3xl font-black mt-2">0</p>
-            </div>
-            <div class="glass p-5 rounded-3xl border-t-2 border-yellow-500/50">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Alerts</span>
-                    <i class="fas fa-tools text-yellow-500"></i>
-                </div>
-                <p id="count-yellow" class="text-3xl font-black mt-2">0</p>
-            </div>
-            <div class="glass p-5 rounded-3xl border-t-2 border-red-500/50">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Down</span>
-                    <i class="fas fa-exclamation-triangle text-red-500"></i>
-                </div>
-                <p id="count-red" class="text-3xl font-black mt-2">0</p>
-            </div>
-            <div class="glass p-5 rounded-3xl border-t-2 border-blue-500/50 pms-glow">
-                <div class="flex justify-between items-start">
-                    <span class="text-xs font-bold text-blue-300 uppercase italic">Next PMS</span>
-                    <i class="fas fa-calendar-check text-blue-400"></i>
-                </div>
-                <p id="count-pms" class="text-3xl font-black mt-2 text-blue-300">0</p>
             </div>
         </div>
     </header>
 
-    <main class="relative z-10 container mx-auto px-6">
-        <div class="mb-12 flex flex-col items-center">
-            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Select Floor Mission Control</p>
-            <nav id="floorNav" class="flex flex-wrap gap-4 justify-center">
-                </nav>
+    <main class="container mx-auto px-4">
+        <nav id="floorNav" class="flex gap-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+            </nav>
+
+        <div id="adminControls" class="hidden mb-8 animate-in slide-in-from-top-4 duration-300">
+            <div class="bg-blue-600/10 border border-blue-500/30 p-5 rounded-3xl flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-blue-400">Inventory Modification Enabled</h3>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">CQI Administrative Privileges</p>
+                </div>
+                <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-2xl font-black text-xs shadow-lg shadow-blue-900/40 active:scale-95 transition">
+                    + NEW ASSET
+                </button>
+            </div>
         </div>
 
-        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             </div>
     </main>
 
-    <div id="adminControls" class="hidden fixed bottom-8 right-8 z-[60]">
-        <button onclick="openACModal()" class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 active:scale-95 transition-all">
-            <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
-    <div id="loginModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-6 z-[200]">
-        <div class="glass rounded-[40px] p-10 w-full max-w-sm text-center shadow-2xl border-white/5">
-            <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-shield-alt text-3xl text-blue-400"></i>
+    <div id="acModal" class="hidden fixed inset-0 z-[100] p-4 flex items-end md:items-center justify-center">
+        <div class="absolute inset-0 bg-slate-950/90 backdrop-blur-md" onclick="closeACModal()"></div>
+        <div class="relative bg-slate-900 border border-white/10 w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in duration-300">
+            <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                <h2 class="font-black text-lg tracking-tight"><i class="fas fa-edit mr-2 text-blue-500"></i>ASSET DATA</h2>
+                <button onclick="closeACModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5"><i class="fas fa-times"></i></button>
             </div>
-            <h2 class="text-2xl font-black mb-2 tracking-tighter">SECURE LOGIN</h2>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Mission Control Authorization</p>
-            <input type="password" id="adminPassInput" class="w-full bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl mb-6 text-center text-xl text-white outline-none focus:border-blue-500 transition" placeholder="PASSKEY">
-            <div class="flex flex-col gap-3">
-                <button onclick="checkAdminPass()" class="w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20">ACCESS SYSTEM</button>
-                <button onclick="closeLogin()" class="w-full py-2 text-slate-500 text-sm font-bold">ABORT</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="acModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-        <div class="glass rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden border-white/10">
-            <div class="p-6 text-white flex justify-between items-center border-b border-white/5">
-                <h2 id="modalTitle" class="font-black italic">UNIT CONFIG</h2>
-                <button onclick="closeACModal()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center"><i class="fas fa-times"></i></button>
-            </div>
-            <form id="acForm" class="p-8 grid grid-cols-2 gap-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            
+            <form id="acForm" class="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto no-scrollbar pb-10">
                 <input type="hidden" id="editId">
                 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Deck/Floor</label>
-                    <select id="fFloor" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
-                        <option value="1">1st Floor</option>
-                        <option value="2">2nd Floor</option>
-                        <option value="3">3rd Floor</option>
-                        <option value="4">4th Floor</option>
-                        <option value="5">5th Floor</option>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Location</label>
+                    <select id="fFloor" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500">
+                        <option value="1">1st Floor</option><option value="2">2nd Floor</option><option value="3">3rd Floor</option>
+                        <option value="4">4th Floor</option><option value="5">5th Floor</option>
                     </select>
                 </div>
-                
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Current Pulse</label>
-                    <select id="fStatus" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
-                        <option value="functional">Functional</option>
-                        <option value="maintenance">Maintenance</option>
-                        <option value="defective">Defective</option>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Health Status</label>
+                    <select id="fStatus" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm outline-none focus:border-blue-500 text-white">
+                        <option value="functional">🟢 Stable</option>
+                        <option value="maintenance">🟡 Servicing</option>
+                        <option value="defective">🔴 Decommissioned</option>
                     </select>
                 </div>
-
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Location Name</label>
-                    <input type="text" id="fDept" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" placeholder="E.G. SURGERY ROOM" required>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Department Name</label>
+                    <input type="text" id="fDept" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="e.g., Surgery Wing" required>
                 </div>
-
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Asset ID</label>
-                    <input type="text" id="fUnitID" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Serial ID</label>
+                    <input type="text" id="fUnitID" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="AC-XXXX">
                 </div>
-
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Technician</label>
-                    <input type="text" id="fStaff" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold">
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Officer</label>
+                    <input type="text" id="fStaff" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm" placeholder="Name">
                 </div>
-
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Last Sync</label>
-                    <input type="date" id="fLastPMS" class="w-full bg-white border-none p-4 rounded-2xl text-sm">
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Next PMS</label>
+                    <input type="date" id="fNextPMS" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm">
                 </div>
-
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Target Sync</label>
-                    <input type="date" id="fNextPMS" class="w-full bg-white border-none p-4 rounded-2xl text-sm">
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Completed</label>
+                    <input type="date" id="fCompletion" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm">
                 </div>
-
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Mission Notes</label>
-                    <textarea id="fNotes" rows="2" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-medium"></textarea>
+                    <label class="text-[10px] font-black text-slate-500 uppercase ml-2">Clinical Notes</label>
+                    <textarea id="fNotes" rows="2" class="w-full bg-slate-800 border border-white/10 p-4 rounded-2xl text-sm"></textarea>
                 </div>
-
-                <div class="col-span-2 flex flex-col gap-3 mt-4">
-                    <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-[2rem] font-black shadow-xl text-lg hover:bg-blue-500 transition">UPDATE CORE</button>
-                    <button type="button" id="deleteBtn" onclick="deleteUnit()" class="hidden w-full bg-red-500/10 text-red-500 py-3 rounded-2xl font-bold hover:bg-red-500/20 transition">DELETE ASSET</button>
+                <div class="col-span-2 flex gap-3 pt-4">
+                    <button type="submit" class="flex-1 bg-blue-600 p-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg active:scale-95 transition">Authorize Save</button>
+                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-500/10 text-red-500 px-6 rounded-2xl border border-red-500/20"><i class="fas fa-trash"></i></button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypU-29NLUWmg6AGwDr9SvjecxRzDJkOszQlOVrZl5XYPasl8-fk6jKhuH67agWXUsB/exec";
-        const ADMIN_PASS = "admin123";
-
-        let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [];
+        // Core Logic (Refined for Performance)
+        let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [
+            { id: '1', floor: 1, status: 'functional', dept: 'Main CQI Office', unitID: 'HQ-01', staff: 'System', nextPMS: '2026-02-15', notes: 'Asset health optimal.' }
+        ];
         let currentFloor = 1;
         let isAdminActive = false;
 
-        async function initApp() {
-            document.getElementById('statusText').innerText = "Syncing with Cloud...";
+        function initApp() {
             renderFloorNavigation();
-            try {
-                const response = await fetch(SCRIPT_URL);
-                const cloudData = await response.json();
-                if (Array.isArray(cloudData)) {
-                    units = cloudData;
-                    localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-                }
-                document.getElementById('statusText').innerText = "System Online";
-                document.getElementById('lastUpdated').innerText = "SYNC: " + new Date().toLocaleTimeString();
-            } catch (e) {
-                document.getElementById('statusText').innerText = "Running Local Mode";
-            }
             updateDashboardCounters();
             renderUnitGrid();
         }
 
-        function formatDisplayDate(dateStr) {
-            if (!dateStr || dateStr === "") return '--';
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return dateStr; 
-            return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
+        function renderFloorNavigation() {
+            const nav = document.getElementById('floorNav');
+            nav.innerHTML = '';
+            for(let i=1; i<=5; i++) {
+                const isActive = currentFloor === i;
+                const btn = document.createElement('button');
+                btn.className = `flex-shrink-0 px-8 py-3 rounded-2xl border border-white/10 text-xs font-black uppercase tracking-widest transition-all ${isActive ? 'floor-btn-active' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`;
+                btn.innerText = `Lvl ${i}`;
+                btn.onclick = () => { currentFloor = i; renderFloorNavigation(); renderUnitGrid(); };
+                nav.appendChild(btn);
+            }
         }
 
         function renderUnitGrid() {
             const grid = document.getElementById('acGrid');
             grid.innerHTML = '';
             const filtered = units.filter(u => parseInt(u.floor) === currentFloor);
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 italic font-bold">NO ASSETS DETECTED ON THIS DECK.</div>`;
-                return;
-            }
 
             filtered.forEach(unit => {
-                const isUrgent = checkPMSUrgency(unit.nextpms || unit.nextPMS);
-                const statusColor = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
-                const borderClass = `neon-border-${statusColor}`;
-                
+                const isUrgent = checkPMSUrgency(unit.nextPMS);
+                const statusColor = unit.status === 'functional' ? 'green' : (unit.status === 'defective' ? 'red' : 'yellow');
+                const glow = unit.status === 'functional' ? 'status-glow-green' : (unit.status === 'defective' ? 'status-glow-red' : '');
+
                 grid.innerHTML += `
-                    <div class="glass rounded-[2.5rem] p-7 relative group card-hover ${borderClass}">
-                        ${isAdminActive ? `<button onclick="openACModal('${unit.id}')" class="absolute top-6 right-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition shadow-lg"><i class="fas fa-pencil-alt text-xs text-white"></i></button>` : ''}
+                    <div class="glass-card rounded-[2.5rem] p-6 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-${statusColor}-500 ${glow}"></div>
                         
-                        <div class="mb-6">
-                            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">ASSET ${unit.unitid || unit.unitID}</span>
-                            <h3 class="text-xl font-black mt-3 text-white leading-tight">${unit.dept}</h3>
-                        </div>
-
-                        <div class="flex items-center gap-3 mb-8">
-                            <span class="w-3 h-3 rounded-full bg-${statusColor}-500 shadow-[0_0_10px_rgba(0,255,0,0.5)]"></span>
-                            <span class="text-xs font-black uppercase tracking-tighter text-${statusColor}-400">${unit.status}</span>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-6 bg-white/5 rounded-3xl p-5 mb-6 border border-white/5">
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Last Sync</p>
-                                <p class="text-xs font-bold text-slate-200 mt-1">${formatDisplayDate(unit.lastpms || unit.lastPMS)}</p>
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="max-w-[70%]">
+                                <h3 class="text-xl font-extrabold text-white truncate">${unit.dept}</h3>
+                                <p class="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Asset: ${unit.unitID}</p>
                             </div>
-                            <div>
-                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Target Sync</p>
-                                <p class="text-xs font-bold mt-1 ${isUrgent ? 'text-red-400 animate-pulse' : 'text-blue-400'}">${formatDisplayDate(unit.nextpms || unit.nextPMS)}</p>
+                            <div class="bg-${statusColor}-500/10 px-3 py-1 rounded-full text-[9px] font-black text-${statusColor}-400 uppercase border border-${statusColor}-500/20">
+                                ${unit.status}
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 text-slate-400">
-                            <i class="fas fa-user-circle text-lg"></i>
-                            <span class="text-[11px] font-bold uppercase tracking-tight italic">${unit.staff || 'NO ASSIGNED TECH'}</span>
+                        <div class="grid grid-cols-2 gap-4 mb-6 bg-white/5 rounded-2xl p-4">
+                            <div>
+                                <span class="text-[8px] font-black text-slate-500 uppercase block mb-1">Schedule</span>
+                                <span class="text-xs font-bold ${isUrgent ? 'text-red-400' : 'text-slate-300'}">${unit.nextPMS || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="text-[8px] font-black text-slate-500 uppercase block mb-1">In-Charge</span>
+                                <span class="text-xs font-bold text-slate-300 truncate block">${unit.staff || 'N/A'}</span>
+                            </div>
                         </div>
-                    </div>`;
+
+                        <p class="text-[11px] text-slate-400 italic mb-6">"${unit.notes || 'No active clinical observations.'}"</p>
+
+                        ${isAdminActive ? `
+                            <button onclick="openACModal('${unit.id}')" class="absolute bottom-6 right-6 w-10 h-10 glass rounded-xl flex items-center justify-center text-blue-400">
+                                <i class="fas fa-pen-nib text-xs"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
             });
         }
 
-        async function saveData() {
-            const formData = {
-                id: document.getElementById('editId').value || "AC-" + Date.now(),
-                floor: document.getElementById('fFloor').value,
-                status: document.getElementById('fStatus').value,
-                dept: document.getElementById('fDept').value,
-                unitID: document.getElementById('fUnitID').value,
-                staff: document.getElementById('fStaff').value,
-                lastPMS: document.getElementById('fLastPMS').value,
-                nextPMS: document.getElementById('fNextPMS').value,
-                notes: document.getElementById('fNotes').value,
-                action: "SAVE"
-            };
-
-            const idx = units.findIndex(u => u.id === formData.id);
-            if(idx > -1) units[idx] = formData; else units.push(formData);
-            
-            localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-            renderUnitGrid();
-            updateDashboardCounters();
-            closeACModal();
-
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
-            } catch (e) { }
-        }
-
-        async function deleteUnit() {
-            const id = document.getElementById('editId').value;
-            if(!confirm("DELETE THIS ASSET PERMANENTLY?")) return;
-            units = units.filter(u => u.id !== id);
-            localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-            renderUnitGrid();
-            updateDashboardCounters();
-            closeACModal();
-            try {
-                await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: id, action: "DELETE" }) });
-            } catch (e) { }
-        }
-
-        function toggleAdminAuth() {
-            if (isAdminActive) {
-                isAdminActive = false;
-                document.getElementById('adminControls').classList.add('hidden');
-                document.getElementById('adminBtn').classList.replace('bg-green-600', 'bg-blue-600');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-fingerprint mr-2"></i> ADMIN ACCESS';
-                renderUnitGrid();
-            } else {
-                document.getElementById('loginModal').classList.remove('hidden');
-                document.getElementById('adminPassInput').focus();
-            }
-        }
-
-        function checkAdminPass() {
-            if (document.getElementById('adminPassInput').value === ADMIN_PASS) {
-                isAdminActive = true;
-                document.getElementById('adminControls').classList.remove('hidden');
-                document.getElementById('adminBtn').classList.replace('bg-blue-600', 'bg-green-600');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock-alt mr-2"></i> DEACTIVATE';
-                closeLogin();
-                renderUnitGrid();
-            } else {
-                alert("ACCESS DENIED");
-            }
-        }
-
-        function closeLogin() { document.getElementById('loginModal').classList.add('hidden'); document.getElementById('adminPassInput').value = ''; }
-        function checkPMSUrgency(dateStr) { if (!dateStr) return false; const d = new Date(dateStr); const diff = Math.ceil((d - new Date()) / 86400000); return diff <= 5 && diff >= -1; }
         function updateDashboardCounters() {
             document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
             document.getElementById('count-yellow').innerText = units.filter(u => u.status === 'maintenance').length;
             document.getElementById('count-red').innerText = units.filter(u => u.status === 'defective').length;
-            document.getElementById('count-pms').innerText = units.filter(u => checkPMSUrgency(u.nextpms || u.nextPMS)).length;
         }
-        function setFloor(f) { currentFloor = f; renderFloorNavigation(); renderUnitGrid(); }
-        function renderFloorNavigation() {
-            const nav = document.getElementById('floorNav');
-            nav.innerHTML = '';
-            for(let i=1; i<=5; i++) {
-                nav.innerHTML += `<button onclick="setFloor(${i})" class="w-16 h-16 glass rounded-full flex items-center justify-center font-black transition-all ${currentFloor === i ? 'floor-btn-active' : 'text-slate-400'}">${i}F</button>`;
+
+        function checkPMSUrgency(dateStr) {
+            if (!dateStr) return false;
+            const diffDays = Math.ceil((new Date(dateStr) - new Date()) / (1000 * 60 * 60 * 24));
+            return diffDays <= 5;
+        }
+
+        function toggleAdminAuth() {
+            if (!isAdminActive) {
+                const pass = prompt("Enter CQI Authorization Key:");
+                if (pass === "admin123") {
+                    isAdminActive = true;
+                    document.getElementById('adminControls').classList.remove('hidden');
+                    document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock text-green-400 mr-2"></i>AUTHORIZED';
+                    renderUnitGrid();
+                }
+            } else {
+                isAdminActive = false;
+                document.getElementById('adminControls').classList.add('hidden');
+                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-fingerprint mr-2 text-blue-400"></i> LOGIN';
+                renderUnitGrid();
             }
         }
+
         function openACModal(id = null) {
             document.getElementById('acForm').reset();
             document.getElementById('editId').value = id || '';
@@ -354,19 +264,46 @@
                 document.getElementById('fFloor').value = u.floor;
                 document.getElementById('fStatus').value = u.status;
                 document.getElementById('fDept').value = u.dept;
-                document.getElementById('fUnitID').value = u.unitid || u.unitID;
+                document.getElementById('fUnitID').value = u.unitID;
                 document.getElementById('fStaff').value = u.staff;
-                // Fix for date inputs
-                const d1 = new Date(u.lastpms || u.lastPMS);
-                if(!isNaN(d1)) document.getElementById('fLastPMS').value = d1.toISOString().split('T')[0];
-                const d2 = new Date(u.nextpms || u.nextPMS);
-                if(!isNaN(d2)) document.getElementById('fNextPMS').value = d2.toISOString().split('T')[0];
+                document.getElementById('fNextPMS').value = u.nextPMS;
+                document.getElementById('fCompletion').value = u.completion;
                 document.getElementById('fNotes').value = u.notes;
             }
             document.getElementById('acModal').classList.remove('hidden');
         }
+
         function closeACModal() { document.getElementById('acModal').classList.add('hidden'); }
-        document.getElementById('acForm').onsubmit = (e) => { e.preventDefault(); saveData(); };
+
+        const acForm = document.getElementById('acForm');
+        acForm.onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('editId').value || Date.now().toString();
+            const newUnit = {
+                id,
+                floor: document.getElementById('fFloor').value,
+                status: document.getElementById('fStatus').value,
+                dept: document.getElementById('fDept').value,
+                unitID: document.getElementById('fUnitID').value,
+                staff: document.getElementById('fStaff').value,
+                nextPMS: document.getElementById('fNextPMS').value,
+                completion: document.getElementById('fCompletion').value,
+                notes: document.getElementById('fNotes').value
+            };
+            const idx = units.findIndex(u => u.id === id);
+            if (idx > -1) units[idx] = newUnit; else units.push(newUnit);
+            localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
+            updateDashboardCounters(); renderUnitGrid(); closeACModal();
+        };
+
+        function deleteUnit() {
+            const id = document.getElementById('editId').value;
+            if (confirm("Decommission this asset permanently?")) {
+                units = units.filter(u => u.id !== id);
+                localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
+                updateDashboardCounters(); renderUnitGrid(); closeACModal();
+            }
+        }
 
         initApp();
     </script>
