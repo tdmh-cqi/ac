@@ -3,327 +3,335 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TDMH | CQI Asset Management</title>
+    <title>TDMH | Asset Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         
-        /* Modern Web Sidebar Layout */
-        .app-container { display: flex; min-height: 100vh; }
-        .sidebar { width: 280px; background: #0f172a; color: white; display: flex; flex-direction: column; transition: all 0.3s ease; }
-        .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
-        
-        /* Professional Card Aesthetic */
-        .stat-card { background: white; border-radius: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-        .unit-card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .unit-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
-        /* Signature Pad Styles */
-        #sig-canvas { border: 2px dashed #cbd5e1; border-radius: 1rem; background: #f8fafc; cursor: crosshair; touch-action: none; }
+        /* Tablet/Desktop Sidebar Layout */
+        .app-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0f172a; color: white; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex-shrink: 0; }
+        .content-area { flex: 1; padding: 1.5rem; overflow-y: auto; }
 
-        @media (max-width: 1024px) {
-            .sidebar { position: fixed; left: -280px; z-index: 100; height: 100%; }
+        /* Tablet Responsive Adjustments */
+        @media (max-width: 1023px) {
+            .sidebar { position: fixed; left: -260px; z-index: 50; height: 100%; }
             .sidebar.active { left: 0; }
-            .main-content { padding: 1rem; padding-top: 5rem; }
+            .content-area { padding-top: 5rem; }
         }
 
-        .active-floor-tab { background: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        .cqi-gradient { background: linear-gradient(135deg, #3b82f6 0%, #2dd4bf 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* Aesthetics */
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .floor-btn-active { background: #3b82f6 !important; color: white !important; border-color: #3b82f6 !important; }
+        .status-badge { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; padding: 0.25rem 0.75rem; border-radius: 9999px; }
+        
+        /* Modern Scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <aside class="sidebar" id="mainSidebar">
-            <div class="p-8">
-                <div class="flex items-center gap-3 mb-10">
-                    <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                        <i class="fas fa-snowflake text-white"></i>
-                    </div>
-                    <span class="text-xl font-extrabold tracking-tight">TDMH <span class="text-blue-400">CQI</span></span>
-                </div>
-
-                <nav class="space-y-2">
-                    <p class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mb-4">Navigation</p>
-                    <div id="floorLinks" class="space-y-1">
-                        </div>
-                </nav>
+    <div class="app-layout">
+        <aside class="sidebar flex flex-col" id="sidebar">
+            <div class="p-6 border-b border-slate-800">
+                <h1 class="text-xl font-black tracking-tighter">AIRCON <span class="text-blue-500">TDMH</span></h1>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">CQI Department</p>
             </div>
-            
-            <div class="mt-auto p-8 border-t border-slate-800">
-                <button onclick="toggleAdminAuth()" id="adminBtn" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl flex items-center justify-center gap-3 transition">
-                    <i class="fas fa-lock text-blue-400"></i>
-                    <span class="text-sm font-bold">Admin Portal</span>
+
+            <nav class="p-4 space-y-2 flex-1">
+                <p class="text-[10px] text-slate-500 font-bold px-4 mb-2 uppercase">Floors</p>
+                <button onclick="filterFloor('all')" class="floor-nav w-full text-left p-3 rounded-xl text-sm font-semibold flex items-center gap-3 transition hover:bg-slate-800 active:scale-95 text-slate-300">
+                    <i class="fas fa-th-large w-5"></i> All Floors
+                </button>
+                <div id="floor-list" class="space-y-1">
+                    </div>
+            </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="toggleAdminMode()" id="admin-btn" class="w-full bg-slate-800 hover:bg-blue-600 p-4 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-user-shield"></i> <span>Admin Login</span>
                 </button>
             </div>
         </aside>
 
-        <main class="main-content">
-            <div class="lg:hidden fixed top-0 left-0 right-0 bg-white border-b p-4 flex justify-between items-center z-[50]">
-                <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center text-slate-600"><i class="fas fa-bars"></i></button>
-                <span class="font-bold text-slate-800 uppercase tracking-tighter">TDMH Asset Hub</span>
+        <main class="content-area">
+            <div class="lg:hidden fixed top-0 left-0 right-0 bg-white border-b px-6 py-4 flex justify-between items-center z-40">
+                <button onclick="document.getElementById('sidebar').classList.toggle('active')" class="w-10 h-10 flex items-center justify-center text-slate-600"><i class="fas fa-bars text-xl"></i></button>
+                <span class="font-bold tracking-tight">TDMH ASSET HUB</span>
                 <div class="w-10"></div>
             </div>
 
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 class="text-3xl font-black text-slate-900 tracking-tight">Floor Management</h1>
-                    <p class="text-slate-500 font-medium">Monitoring HVAC assets via <span class="cqi-gradient font-bold italic">Continuous Quality Improvement</span></p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="glass-card p-4 border-l-4 border-green-500">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Functional</p>
+                    <p id="stat-green" class="text-2xl font-black">0</p>
                 </div>
-                <div id="adminActionArea" class="hidden">
-                    <button onclick="openACModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-blue-200">
-                        <i class="fas fa-plus"></i> Register New Asset
-                    </button>
+                <div class="glass-card p-4 border-l-4 border-yellow-500">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Maintenance</p>
+                    <p id="stat-yellow" class="text-2xl font-black">0</p>
                 </div>
-            </header>
-
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div class="stat-card p-6 border-b-4 border-green-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Functional</p>
-                    <h3 id="count-green" class="text-3xl font-black text-slate-800">0</h3>
+                <div class="glass-card p-4 border-l-4 border-red-500">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">Defective</p>
+                    <p id="stat-red" class="text-2xl font-black">0</p>
                 </div>
-                <div class="stat-card p-6 border-b-4 border-yellow-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Under Repair</p>
-                    <h3 id="count-yellow" class="text-3xl font-black text-slate-800">0</h3>
-                </div>
-                <div class="stat-card p-6 border-b-4 border-red-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Critical Fail</p>
-                    <h3 id="count-red" class="text-3xl font-black text-slate-800">0</h3>
-                </div>
-                <div class="stat-card p-6 border-b-4 border-blue-500">
-                    <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider">PMS Alerts</p>
-                    <h3 id="count-pms" class="text-3xl font-black text-slate-800">0</h3>
+                <div class="glass-card p-4 border-l-4 border-blue-500">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">PMS Alerts</p>
+                    <p id="stat-pms" class="text-2xl font-black">0</p>
                 </div>
             </div>
 
-            <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div id="pms-reminders" class="mb-8 space-y-2"></div>
+
+            <div id="unit-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-24">
                 </div>
         </main>
+
+        <div id="admin-actions" class="fixed bottom-8 right-8 hidden z-50">
+            <button onclick="openModal()" class="bg-blue-600 text-white w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-transform">
+                <i class="fas fa-plus text-2xl"></i>
+            </button>
+        </div>
     </div>
 
-    <div id="acModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 lg:p-10">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeACModal()"></div>
-        <div class="bg-white relative w-full max-w-2xl rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+    <div id="ac-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-[100]">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-                <div>
-                    <h2 class="text-xl font-black text-slate-800">Asset Record Details</h2>
-                    <p class="text-xs text-slate-500">Update unit health and CQI compliance</p>
-                </div>
-                <button onclick="closeACModal()" class="w-10 h-10 rounded-full hover:bg-slate-200 text-slate-400 transition"><i class="fas fa-times"></i></button>
+                <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Asset Settings</h2>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-2xl"><i class="fas fa-times"></i></button>
             </div>
             
-            <form id="acForm" class="p-8 overflow-y-auto space-y-6">
-                <input type="hidden" id="editId">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Location</label>
-                        <select id="fFloor" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none focus:ring-2 ring-blue-500/20">
-                            <option value="1">1st Floor</option><option value="2">2nd Floor</option><option value="3">3rd Floor</option><option value="4">4th Floor</option><option value="5">5th Floor</option>
+            <form id="ac-form" class="p-8 overflow-y-auto space-y-6">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Location / Floor</label>
+                        <select id="floor" class="w-full bg-slate-100 border-none p-4 rounded-xl font-medium" required>
+                            <option value="1st">1st Floor</option><option value="2nd">2nd Floor</option><option value="3rd">3rd Floor</option><option value="4th">4th Floor</option><option value="5th">5th Floor</option>
                         </select>
                     </div>
-                    <div class="col-span-1">
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Status</label>
-                        <select id="fStatus" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl outline-none">
-                            <option value="functional">🟢 Functional</option>
-                            <option value="maintenance">🟡 Maintenance</option>
-                            <option value="defective">🔴 Defective</option>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Health Status</label>
+                        <select id="status" class="w-full bg-slate-100 border-none p-4 rounded-xl font-medium" required onchange="toggleCompletionDate()">
+                            <option value="green">Functional (Ready)</option>
+                            <option value="yellow">Under Maintenance</option>
+                            <option value="red">Defective / Critical</option>
                         </select>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Department Name</label>
-                    <input type="text" id="fDept" placeholder="e.g. Radiology Wing" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Serial ID</label>
-                        <input type="text" id="fUnitID" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Department Name</label>
+                        <input type="text" id="department" class="w-full bg-slate-100 border-none p-4 rounded-xl" placeholder="e.g. ICU Wing A" required>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Technician</label>
-                        <input type="text" id="fStaff" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Last PMS Date</label>
+                        <input type="date" id="lastPMS" class="w-full bg-slate-100 border-none p-4 rounded-xl" required>
                     </div>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">CQI Verification (Digital Signature)</label>
-                    <canvas id="sig-canvas" width="550" height="150" class="w-full"></canvas>
-                    <button type="button" onclick="clearSignature()" class="mt-2 text-[10px] font-bold text-red-500 uppercase tracking-widest hover:underline">Clear Signature</button>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Next PMS Schedule</label>
+                        <input type="date" id="nextPMS" class="w-full bg-slate-100 border-none p-4 rounded-xl" required>
+                    </div>
+                    <div id="completion-box" class="hidden md:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2 italic text-yellow-600">Expected Repair Completion</label>
+                        <input type="date" id="completionDate" class="w-full bg-yellow-50 border-2 border-yellow-200 p-4 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Technician in Charge</label>
+                        <input type="text" id="reportedBy" class="w-full bg-slate-100 border-none p-4 rounded-xl" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-2">Technical Notes</label>
+                        <textarea id="notes" class="w-full bg-slate-100 border-none p-4 rounded-xl" rows="2"></textarea>
+                    </div>
                 </div>
 
                 <div class="pt-6 border-t flex gap-3">
-                    <button type="submit" class="flex-1 bg-slate-900 text-white p-4 rounded-xl font-bold shadow-xl">Commit Changes</button>
-                    <button type="button" onclick="deleteUnit()" id="deleteBtn" class="hidden bg-red-50 text-red-600 px-6 rounded-xl border border-red-100"><i class="fas fa-trash"></i></button>
+                    <button type="submit" class="flex-1 bg-slate-900 text-white p-4 rounded-2xl font-bold shadow-lg shadow-slate-200">Commit Record</button>
+                    <button type="button" onclick="closeModal()" class="px-6 py-4 text-slate-500 font-bold">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // DATA & LOGIC
-        let units = JSON.parse(localStorage.getItem('ac_tdmh_data')) || [
-            { id: '1', floor: 1, status: 'functional', dept: 'Main Lobby', unitID: 'AC-101', staff: 'CQI-Admin', lastPMS: '2026-01-01', nextPMS: '2026-03-01', notes: 'Asset verified.' }
-        ];
-        let currentFloor = 1;
-        let isAdminActive = false;
+        let acUnits = JSON.parse(localStorage.getItem('acUnits')) || [];
+        let isAdmin = false;
+        let currentFilter = 'all';
 
-        // Init Sidebar Navigation
-        function renderFloorNav() {
-            const container = document.getElementById('floorLinks');
-            container.innerHTML = '';
-            for(let i=1; i<=5; i++) {
-                const active = currentFloor === i ? 'active-floor-tab' : 'hover:bg-slate-800/50 text-slate-400';
-                container.innerHTML += `
-                    <button onclick="setFloor(${i})" class="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-3 transition ${active}">
-                        <i class="fas fa-layer-group text-xs"></i> Floor ${i}
-                    </button>
-                `;
-            }
+        // Initialize Floor Nav
+        function setupFloorNav() {
+            const floorList = document.getElementById('floor-list');
+            const floors = ['1st', '2nd', '3rd', '4th', '5th'];
+            floorList.innerHTML = floors.map(f => `
+                <button onclick="filterFloor('${f}')" id="btn-${f}" class="floor-nav w-full text-left p-3 rounded-xl text-sm font-semibold flex items-center gap-3 transition hover:bg-slate-800 text-slate-300">
+                    <i class="fas fa-layer-group w-5"></i> Floor ${f}
+                </button>
+            `).join('');
         }
 
-        function setFloor(f) {
-            currentFloor = f;
-            renderFloorNav();
-            renderUnitGrid();
-            if(window.innerWidth < 1024) toggleSidebar();
-        }
-
-        function toggleSidebar() { document.getElementById('mainSidebar').classList.toggle('active'); }
-
-        function renderUnitGrid() {
-            const grid = document.getElementById('acGrid');
-            grid.innerHTML = '';
-            const filtered = units.filter(u => parseInt(u.floor) === currentFloor);
-
-            filtered.forEach(unit => {
-                const color = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
-                grid.innerHTML += `
-                    <div class="unit-card p-6 flex flex-col">
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="px-3 py-1 bg-${color}-50 text-${color}-600 rounded-full text-[10px] font-black uppercase border border-${color}-100">
-                                ${unit.status}
-                            </span>
-                            <span class="text-[10px] font-bold text-slate-400 tracking-wider">${unit.unitID}</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-slate-800 mb-1">${unit.dept}</h3>
-                        <p class="text-xs text-slate-400 mb-6 flex items-center gap-2"><i class="far fa-calendar-alt"></i> Next: ${unit.nextPMS || 'N/A'}</p>
-                        
-                        <div class="mt-auto pt-4 border-t border-slate-50 flex justify-between items-center">
-                            <div class="flex items-center gap-2">
-                                <div class="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-[10px] text-slate-500 font-bold">
-                                    ${unit.staff ? unit.staff[0] : 'U'}
-                                </div>
-                                <span class="text-[10px] font-bold text-slate-600 uppercase">${unit.staff || 'None'}</span>
-                            </div>
-                            ${isAdminActive ? `<button onclick="openACModal('${unit.id}')" class="text-blue-500 hover:text-blue-700 font-bold text-xs uppercase tracking-widest">Edit</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-            updateCounters();
-        }
-
-        function updateCounters() {
-            document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
-            document.getElementById('count-yellow').innerText = units.filter(u => u.status === 'maintenance').length;
-            document.getElementById('count-red').innerText = units.filter(u => u.status === 'defective').length;
-            document.getElementById('count-pms').innerText = units.filter(u => checkPMS(u.nextPMS)).length;
-        }
-
-        function checkPMS(d) {
-            if(!d) return false;
-            const diff = Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24));
-            return diff <= 5 && diff >= -1;
-        }
-
-        function toggleAdminAuth() {
-            if(!isAdminActive) {
-                if(prompt("Enter CQI Security Code:") === "admin123") {
-                    isAdminActive = true;
-                    document.getElementById('adminActionArea').classList.remove('hidden');
-                    document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock text-green-400"></i> <span class="text-sm font-bold">Authenticated</span>';
-                    renderUnitGrid();
-                }
+        function toggleAdminMode() {
+            if (!isAdmin) {
+                if (prompt("Enter Admin Password:") === "admin123") {
+                    isAdmin = true;
+                    document.getElementById('admin-btn').innerHTML = '<i class="fas fa-unlock text-green-400"></i> Admin Active';
+                    document.getElementById('admin-actions').classList.remove('hidden');
+                } else { alert("Unauthorized."); }
             } else {
-                isAdminActive = false;
-                document.getElementById('adminActionArea').classList.add('hidden');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-lock text-blue-400"></i> <span class="text-sm font-bold">Admin Portal</span>';
-                renderUnitGrid();
+                isAdmin = false;
+                document.getElementById('admin-btn').innerHTML = '<i class="fas fa-lock"></i> Admin Login';
+                document.getElementById('admin-actions').classList.add('hidden');
             }
+            renderUnits(currentFilter);
         }
 
-        // SIGNATURE LOGIC
-        const canvas = document.getElementById('sig-canvas');
-        const ctx = canvas.getContext('2d');
-        let drawing = false;
-        canvas.addEventListener('mousedown', () => drawing = true);
-        window.addEventListener('mouseup', () => drawing = false);
-        canvas.addEventListener('mousemove', (e) => {
-            if(!drawing) return;
-            ctx.lineWidth = 2;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#1e293b';
-            const rect = canvas.getBoundingClientRect();
-            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-        });
-        function clearSignature() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath(); }
+        function renderUnits(filter = 'all') {
+            currentFilter = filter;
+            const container = document.getElementById('unit-container');
+            const reminderContainer = document.getElementById('pms-reminders');
+            container.innerHTML = '';
+            reminderContainer.innerHTML = '';
+            
+            let counts = { green: 0, yellow: 0, red: 0, pms: 0 };
+            const today = new Date();
+            const threshold = new Date(); threshold.setDate(today.getDate() + 5);
 
-        function openACModal(id = null) {
-            document.getElementById('acForm').reset();
-            clearSignature();
-            document.getElementById('editId').value = id || '';
-            document.getElementById('deleteBtn').classList.toggle('hidden', !id);
-            if(id) {
-                const u = units.find(u => u.id === id);
-                document.getElementById('fFloor').value = u.floor;
-                document.getElementById('fStatus').value = u.status;
-                document.getElementById('fDept').value = u.dept;
-                document.getElementById('fUnitID').value = u.unitID;
-                document.getElementById('fStaff').value = u.staff;
-            }
-            document.getElementById('acModal').classList.remove('hidden');
+            // Update UI Sidebar selection
+            document.querySelectorAll('.floor-nav').forEach(b => b.classList.remove('floor-btn-active'));
+            const activeBtn = filter === 'all' ? document.querySelector('[onclick="filterFloor(\'all\')"]') : document.getElementById(`btn-${filter}`);
+            if(activeBtn) activeBtn.classList.add('floor-btn-active');
+
+            acUnits.forEach((unit, index) => {
+                const nextPms = new Date(unit.nextPMS);
+                const isUrgent = nextPms <= threshold && nextPms >= today;
+                
+                if (isUrgent) {
+                    counts.pms++;
+                    reminderContainer.innerHTML += `
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl text-blue-800 text-sm flex items-center shadow-sm">
+                            <i class="fas fa-info-circle mr-3"></i> <span><strong>PMS Due:</strong> ${unit.department} (${unit.floor}) on ${unit.nextPMS}</span>
+                        </div>`;
+                }
+
+                if (filter === 'all' || unit.floor === filter) {
+                    counts[unit.status]++;
+                    const colors = {
+                        green: { bg: 'bg-green-500', text: 'text-green-600', border: 'border-green-100', soft: 'bg-green-50' },
+                        yellow: { bg: 'bg-yellow-500', text: 'text-yellow-600', border: 'border-yellow-100', soft: 'bg-yellow-50' },
+                        red: { bg: 'bg-red-500', text: 'text-red-600', border: 'border-red-100', soft: 'bg-red-50' }
+                    };
+                    const theme = colors[unit.status];
+
+                    container.innerHTML += `
+                        <div class="glass-card flex flex-col overflow-hidden animate-in fade-in duration-300">
+                            <div class="p-5 flex-1">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="status-badge ${theme.soft} ${theme.text}">${unit.status}</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${unit.floor}</span>
+                                </div>
+                                <h3 class="font-black text-lg text-slate-800 uppercase tracking-tight mb-4">${unit.department}</h3>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400 font-bold uppercase">Technician</span>
+                                        <span class="font-bold text-slate-700">${unit.reportedBy}</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400 font-bold uppercase">Last PMS</span>
+                                        <span class="font-bold text-slate-700">${unit.lastPMS}</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs p-2 rounded-lg ${isUrgent ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}">
+                                        <span class="font-bold uppercase">Next PMS</span>
+                                        <span class="font-black">${unit.nextPMS}</span>
+                                    </div>
+                                    ${unit.status === 'yellow' ? `
+                                        <div class="text-[10px] bg-yellow-100 text-yellow-700 p-2 rounded-lg font-bold">
+                                            <i class="fas fa-wrench mr-1"></i> TARGET REPAIR: ${unit.completionDate}
+                                        </div>
+                                    ` : ''}
+                                </div>
+
+                                <p class="mt-4 text-xs italic text-slate-500 border-t pt-4">"${unit.notes || 'No specific technical notes.'}"</p>
+                            </div>
+
+                            ${isAdmin ? `
+                            <div class="bg-slate-50 p-3 border-t flex gap-2">
+                                <button onclick="editUnit(${index})" class="flex-1 py-3 bg-white border border-slate-200 rounded-xl text-xs font-bold text-blue-600 shadow-sm"><i class="fas fa-edit mr-1"></i> Edit</button>
+                                <button onclick="deleteUnit(${index})" class="flex-1 py-3 bg-red-50 border border-red-100 rounded-xl text-xs font-bold text-red-600 shadow-sm"><i class="fas fa-trash-alt mr-1"></i> Delete</button>
+                            </div>` : ''}
+                        </div>`;
+                }
+            });
+
+            document.getElementById('stat-green').innerText = counts.green;
+            document.getElementById('stat-yellow').innerText = counts.yellow;
+            document.getElementById('stat-red').innerText = counts.red;
+            document.getElementById('stat-pms').innerText = counts.pms;
         }
 
-        function closeACModal() { document.getElementById('acModal').classList.add('hidden'); }
-
-        document.getElementById('acForm').onsubmit = (e) => {
+        // Standard Logic
+        document.getElementById('ac-form').onsubmit = (e) => {
             e.preventDefault();
-            const id = document.getElementById('editId').value || Date.now().toString();
-            const newUnit = {
-                id: id,
-                floor: document.getElementById('fFloor').value,
-                status: document.getElementById('fStatus').value,
-                dept: document.getElementById('fDept').value,
-                unitID: document.getElementById('fUnitID').value,
-                staff: document.getElementById('fStaff').value,
-                nextPMS: '2026-03-01' // Example date logic
+            const id = document.getElementById('edit-id').value;
+            const data = {
+                floor: document.getElementById('floor').value,
+                department: document.getElementById('department').value,
+                status: document.getElementById('status').value,
+                completionDate: document.getElementById('completionDate').value,
+                lastPMS: document.getElementById('lastPMS').value,
+                nextPMS: document.getElementById('nextPMS').value,
+                reportedBy: document.getElementById('reportedBy').value,
+                notes: document.getElementById('notes').value
             };
-            const idx = units.findIndex(u => u.id === id);
-            if(idx > -1) units[idx] = newUnit; else units.push(newUnit);
-            localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-            renderUnitGrid();
-            closeACModal();
+            if (id === "") acUnits.push(data); else acUnits[id] = data;
+            localStorage.setItem('acUnits', JSON.stringify(acUnits));
+            closeModal();
+            renderUnits(currentFilter);
         };
 
-        function deleteUnit() {
-            if(confirm("Purge asset record?")) {
-                units = units.filter(u => u.id !== document.getElementById('editId').value);
-                localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
-                renderUnitGrid();
-                closeACModal();
+        function toggleCompletionDate() {
+            const status = document.getElementById('status').value;
+            document.getElementById('completion-box').classList.toggle('hidden', status !== 'yellow');
+        }
+
+        function filterFloor(floor) {
+            currentFilter = floor;
+            renderUnits(floor);
+            if(window.innerWidth < 1024) document.getElementById('sidebar').classList.remove('active');
+        }
+
+        function openModal() { document.getElementById('ac-modal').classList.remove('hidden'); }
+        function closeModal() { 
+            document.getElementById('ac-modal').classList.add('hidden'); 
+            document.getElementById('ac-form').reset();
+            document.getElementById('edit-id').value = "";
+        }
+
+        function deleteUnit(i) {
+            if(confirm("Permanently delete this asset record?")) {
+                acUnits.splice(i,1);
+                localStorage.setItem('acUnits', JSON.stringify(acUnits));
+                renderUnits(currentFilter);
             }
         }
 
-        renderFloorNav();
-        renderUnitGrid();
+        function editUnit(i) {
+            const u = acUnits[i];
+            document.getElementById('edit-id').value = i;
+            document.getElementById('floor').value = u.floor;
+            document.getElementById('department').value = u.department;
+            document.getElementById('status').value = u.status;
+            document.getElementById('lastPMS').value = u.lastPMS;
+            document.getElementById('nextPMS').value = u.nextPMS;
+            document.getElementById('reportedBy').value = u.reportedBy;
+            document.getElementById('notes').value = u.notes;
+            toggleCompletionDate();
+            openModal();
+        }
+
+        // Init
+        setupFloorNav();
+        renderUnits();
     </script>
 </body>
 </html>
