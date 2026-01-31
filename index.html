@@ -3,105 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AC-TDMH | Professional Cloud Management System</title>
+    <title>AC-TDMH | AeroStream Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        .pms-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        .floor-tab-active { background-color: #dbeafe !important; border-color: #3b82f6 !important; color: #1d4ed8 !important; font-weight: 700; }
+        body { font-family: 'Outfit', sans-serif; background: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .neon-border-green { border-bottom: 4px solid #10b981; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); }
+        .neon-border-yellow { border-bottom: 4px solid #f59e0b; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
+        .neon-border-red { border-bottom: 4px solid #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+        .pms-glow { animation: glow 1.5s ease-in-out infinite alternate; }
+        @keyframes glow { from { box-shadow: 0 0 5px #3b82f6; } to { box-shadow: 0 0 20px #3b82f6, 0 0 30px #1d4ed8; } }
+        .floor-btn-active { background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important; color: white !important; transform: scale(1.1); box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.5); }
+        .card-hover:hover { transform: translateY(-8px); transition: all 0.3s ease; }
         /* iPad optimization: Prevent content from hiding behind keyboard */
-        input, select, textarea { font-size: 16px !important; } 
+        input, select, textarea { font-size: 16px !important; color: black !important; } 
     </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-900 overflow-x-hidden">
+<body class="overflow-x-hidden pb-24">
 
-    <div id="cloudStatus" class="bg-slate-900 text-[10px] text-slate-400 py-2 px-4 flex justify-between items-center">
-        <span>Cloud: <span id="statusText" class="text-blue-400 font-bold uppercase tracking-widest">Checking Sync...</span></span>
-        <span id="lastUpdated">Never</span>
+    <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[120px] rounded-full z-0"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full z-0"></div>
+
+    <div class="relative z-10 px-6 py-2 flex justify-between items-center text-[11px] font-bold tracking-tighter uppercase text-slate-400">
+        <div class="flex items-center gap-2">
+            <span id="statusDot" class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+            <span id="statusText">System Initializing...</span>
+        </div>
+        <div id="lastUpdated">SYNC: NONE</div>
     </div>
 
-    <header class="bg-slate-800 text-white p-4 md:p-6 shadow-lg sticky top-0 z-40">
-        <div class="container mx-auto">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <div class="text-center md:text-left">
-                    <h1 class="text-2xl font-bold tracking-tight">AC-TDMH <span class="font-light text-slate-400 text-sm italic">v1.6 iPad Edition</span></h1>
-                    <p class="text-[10px] text-slate-400 uppercase tracking-widest">Maintenance Management</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="initApp()" class="bg-slate-700 hover:bg-slate-600 p-3 rounded-xl transition">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full text-sm font-semibold transition flex items-center shadow-md">
-                        <i class="fas fa-lock mr-2"></i>Admin Login
-                    </button>
-                </div>
+    <header class="relative z-10 container mx-auto px-6 py-8">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h1 class="text-4xl font-extrabold tracking-tighter italic">AERO<span class="text-blue-500">STREAM</span></h1>
+                <p class="text-slate-400 font-medium tracking-[0.3em] text-xs uppercase mt-[-4px]">TDMH Aircon Management</p>
             </div>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-green-500">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold">Functional</p>
-                    <p id="count-green" class="text-xl font-bold text-green-400">0</p>
+            <div class="flex gap-3">
+                <button onclick="initApp()" class="glass p-4 rounded-2xl hover:bg-slate-700 transition">
+                    <i class="fas fa-sync-alt text-blue-400"></i>
+                </button>
+                <button onclick="toggleAdminAuth()" id="adminBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-2xl text-sm font-bold transition flex items-center shadow-xl hover:opacity-90">
+                    <i class="fas fa-fingerprint mr-2"></i> ADMIN ACCESS
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
+            <div class="glass p-5 rounded-3xl border-t-2 border-green-500/50">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Cooling</span>
+                    <i class="fas fa-snowflake text-green-500"></i>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-yellow-500">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold">Maintenance</p>
-                    <p id="count-yellow" class="text-xl font-bold text-yellow-400">0</p>
+                <p id="count-green" class="text-3xl font-black mt-2">0</p>
+            </div>
+            <div class="glass p-5 rounded-3xl border-t-2 border-yellow-500/50">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Alerts</span>
+                    <i class="fas fa-tools text-yellow-500"></i>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-red-500">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold">Defective</p>
-                    <p id="count-red" class="text-xl font-bold text-red-400">0</p>
+                <p id="count-yellow" class="text-3xl font-black mt-2">0</p>
+            </div>
+            <div class="glass p-5 rounded-3xl border-t-2 border-red-500/50">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-slate-400 uppercase">Down</span>
+                    <i class="fas fa-exclamation-triangle text-red-500"></i>
                 </div>
-                <div class="bg-slate-700/50 p-3 rounded-xl border-l-4 border-blue-400">
-                    <p class="text-[10px] text-gray-400 uppercase font-bold text-blue-300 italic">5-Day PMS</p>
-                    <p id="count-pms" class="text-xl font-bold text-blue-300">0</p>
+                <p id="count-red" class="text-3xl font-black mt-2">0</p>
+            </div>
+            <div class="glass p-5 rounded-3xl border-t-2 border-blue-500/50 pms-glow">
+                <div class="flex justify-between items-start">
+                    <span class="text-xs font-bold text-blue-300 uppercase italic">Next PMS</span>
+                    <i class="fas fa-calendar-check text-blue-400"></i>
                 </div>
+                <p id="count-pms" class="text-3xl font-black mt-2 text-blue-300">0</p>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto p-4">
-        <nav id="floorNav" class="flex flex-wrap gap-2 mb-8 justify-center md:justify-start">
-            </nav>
-
-        <div id="adminControls" class="hidden mb-8 p-6 bg-white rounded-2xl border-2 border-dashed border-blue-200 flex flex-col md:flex-row justify-between items-center gap-4 animate-in fade-in slide-in-from-top duration-500">
-            <div>
-                <h3 class="font-bold text-blue-800 text-lg">System Management Mode</h3>
-                <p class="text-sm text-gray-500 italic">Connected to Google Sheets</p>
-            </div>
-            <button onclick="openACModal()" class="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white px-10 py-4 rounded-2xl font-bold shadow-lg transition">
-                <i class="fas fa-plus mr-2"></i>Add New Unit
-            </button>
+    <main class="relative z-10 container mx-auto px-6">
+        <div class="mb-12 flex flex-col items-center">
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Select Floor Mission Control</p>
+            <nav id="floorNav" class="flex flex-wrap gap-4 justify-center">
+                </nav>
         </div>
 
-        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div id="acGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             </div>
     </main>
 
-    <div id="loginModal" class="hidden fixed inset-0 bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 z-[200]">
-        <div class="bg-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl">
-            <i class="fas fa-user-shield text-5xl text-blue-600 mb-4"></i>
-            <h2 class="text-2xl font-bold mb-2">Admin Access</h2>
-            <p class="text-gray-500 text-sm mb-6">Please enter the system password</p>
-            <input type="password" id="adminPassInput" class="w-full border-2 border-gray-100 p-4 rounded-2xl mb-4 text-center text-xl outline-none focus:border-blue-500" placeholder="••••••••">
-            <div class="flex gap-2">
-                <button onclick="closeLogin()" class="flex-1 py-3 text-gray-400 font-bold">Cancel</button>
-                <button onclick="checkAdminPass()" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-bold">Login</button>
+    <div id="adminControls" class="hidden fixed bottom-8 right-8 z-[60]">
+        <button onclick="openACModal()" class="w-16 h-16 bg-gradient-to-tr from-blue-500 to-purple-600 rounded-full shadow-2xl flex items-center justify-center text-white text-2xl hover:scale-110 active:scale-95 transition-all">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <div id="loginModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-xl flex items-center justify-center p-6 z-[200]">
+        <div class="glass rounded-[40px] p-10 w-full max-w-sm text-center shadow-2xl border-white/5">
+            <div class="w-20 h-20 bg-blue-600/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-shield-alt text-3xl text-blue-400"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-2 tracking-tighter">SECURE LOGIN</h2>
+            <p class="text-slate-400 text-sm mb-8 font-medium">Mission Control Authorization</p>
+            <input type="password" id="adminPassInput" class="w-full bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl mb-6 text-center text-xl text-white outline-none focus:border-blue-500 transition" placeholder="PASSKEY">
+            <div class="flex flex-col gap-3">
+                <button onclick="checkAdminPass()" class="w-full bg-blue-600 py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20">ACCESS SYSTEM</button>
+                <button onclick="closeLogin()" class="w-full py-2 text-slate-500 text-sm font-bold">ABORT</button>
             </div>
         </div>
     </div>
 
-    <div id="acModal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
-            <div class="bg-slate-800 p-5 text-white flex justify-between items-center">
-                <h2 id="modalTitle" class="font-bold">Unit Editor</h2>
-                <button onclick="closeACModal()" class="p-2"><i class="fas fa-times text-2xl"></i></button>
+    <div id="acModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+        <div class="glass rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden border-white/10">
+            <div class="p-6 text-white flex justify-between items-center border-b border-white/5">
+                <h2 id="modalTitle" class="font-black italic">UNIT CONFIG</h2>
+                <button onclick="closeACModal()" class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <form id="acForm" class="p-6 grid grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
+            <form id="acForm" class="p-8 grid grid-cols-2 gap-5 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 <input type="hidden" id="editId">
                 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Floor</label>
-                    <select id="fFloor" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm focus:border-blue-500" required>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Deck/Floor</label>
+                    <select id="fFloor" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
                         <option value="1">1st Floor</option>
                         <option value="2">2nd Floor</option>
                         <option value="3">3rd Floor</option>
@@ -111,49 +135,47 @@
                 </div>
                 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Status</label>
-                    <select id="fStatus" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm focus:border-blue-500" required>
-                        <option value="functional">🟢 Functional</option>
-                        <option value="maintenance">🟡 Maintenance</option>
-                        <option value="defective">🔴 Defective</option>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Current Pulse</label>
+                    <select id="fStatus" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
+                        <option value="functional">Functional</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="defective">Defective</option>
                     </select>
                 </div>
 
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Department / Room</label>
-                    <input type="text" id="fDept" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm" required>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Location Name</label>
+                    <input type="text" id="fDept" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" placeholder="E.G. SURGERY ROOM" required>
                 </div>
 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Unit ID Tag</label>
-                    <input type="text" id="fUnitID" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm" required>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Asset ID</label>
+                    <input type="text" id="fUnitID" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold" required>
                 </div>
 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Staff Assigned</label>
-                    <input type="text" id="fStaff" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Technician</label>
+                    <input type="text" id="fStaff" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-bold">
                 </div>
 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Last PMS</label>
-                    <input type="date" id="fLastPMS" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Last Sync</label>
+                    <input type="date" id="fLastPMS" class="w-full bg-white border-none p-4 rounded-2xl text-sm">
                 </div>
 
                 <div class="col-span-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Next PMS</label>
-                    <input type="date" id="fNextPMS" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Target Sync</label>
+                    <input type="date" id="fNextPMS" class="w-full bg-white border-none p-4 rounded-2xl text-sm">
                 </div>
 
                 <div class="col-span-2">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Notes</label>
-                    <textarea id="fNotes" rows="2" class="w-full border-2 border-gray-100 p-4 rounded-xl text-sm"></textarea>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Mission Notes</label>
+                    <textarea id="fNotes" rows="2" class="w-full bg-white border-none p-4 rounded-2xl text-sm font-medium"></textarea>
                 </div>
 
                 <div class="col-span-2 flex flex-col gap-3 mt-4">
-                    <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg text-lg">Save Record</button>
-                    <button type="button" id="deleteBtn" onclick="deleteUnit()" class="hidden w-full bg-red-50 text-red-600 py-4 rounded-2xl font-bold hover:bg-red-100 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-trash"></i> Delete Unit
-                    </button>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-[2rem] font-black shadow-xl text-lg hover:bg-blue-500 transition">UPDATE CORE</button>
+                    <button type="button" id="deleteBtn" onclick="deleteUnit()" class="hidden w-full bg-red-500/10 text-red-500 py-3 rounded-2xl font-bold hover:bg-red-500/20 transition">DELETE ASSET</button>
                 </div>
             </form>
         </div>
@@ -168,7 +190,7 @@
         let isAdminActive = false;
 
         async function initApp() {
-            document.getElementById('statusText').innerText = "Syncing...";
+            document.getElementById('statusText').innerText = "Syncing with Cloud...";
             renderFloorNavigation();
             try {
                 const response = await fetch(SCRIPT_URL);
@@ -177,10 +199,10 @@
                     units = cloudData;
                     localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
                 }
-                document.getElementById('statusText').innerText = "Online";
-                document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
+                document.getElementById('statusText').innerText = "System Online";
+                document.getElementById('lastUpdated').innerText = "SYNC: " + new Date().toLocaleTimeString();
             } catch (e) {
-                document.getElementById('statusText').innerText = "Offline (Local)";
+                document.getElementById('statusText').innerText = "Running Local Mode";
             }
             updateDashboardCounters();
             renderUnitGrid();
@@ -193,40 +215,49 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
         }
 
-        function formatForInput(dateStr) {
-            if (!dateStr) return '';
-            const d = new Date(dateStr);
-            if (isNaN(d.getTime())) return '';
-            return d.toISOString().split('T')[0];
-        }
-
         function renderUnitGrid() {
             const grid = document.getElementById('acGrid');
             grid.innerHTML = '';
             const filtered = units.filter(u => parseInt(u.floor) === currentFloor);
             
             if (filtered.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-20 text-center text-gray-400 italic">No units on this floor.</div>`;
+                grid.innerHTML = `<div class="col-span-full py-20 text-center text-slate-500 italic font-bold">NO ASSETS DETECTED ON THIS DECK.</div>`;
                 return;
             }
 
             filtered.forEach(unit => {
                 const isUrgent = checkPMSUrgency(unit.nextpms || unit.nextPMS);
-                const color = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
+                const statusColor = unit.status === 'functional' ? 'green' : (unit.status === 'maintenance' ? 'yellow' : 'red');
+                const borderClass = `neon-border-${statusColor}`;
+                
                 grid.innerHTML += `
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden relative group">
-                        <div class="h-3 bg-${color}-500"></div>
-                        ${isAdminActive ? `<button onclick="openACModal('${unit.id}')" class="absolute top-6 right-6 bg-slate-100 p-3 rounded-full hover:bg-blue-600 hover:text-white transition"><i class="fas fa-edit"></i></button>` : ''}
-                        <div class="p-6">
-                            <h3 class="font-bold text-gray-800 text-lg">${unit.dept}</h3>
-                            <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mb-4">ID: ${unit.unitid || unit.unitID}</p>
-                            <div class="flex items-center mb-6"><span class="w-3 h-3 rounded-full bg-${color}-500 mr-2"></span><span class="text-${color}-600 font-black text-xs uppercase">${unit.status}</span></div>
-                            <div class="grid grid-cols-2 gap-4 border-y border-gray-50 py-4 mb-4">
-                                <div><p class="text-[10px] font-bold text-gray-400 uppercase">Last PMS</p><p class="text-sm font-semibold">${formatDisplayDate(unit.lastpms || unit.lastPMS)}</p></div>
-                                <div><p class="text-[10px] font-bold text-gray-400 uppercase">Next PMS</p><p class="text-sm font-semibold ${isUrgent ? 'text-red-500 pms-pulse' : 'text-blue-600'}">${formatDisplayDate(unit.nextpms || unit.nextPMS)}</p></div>
+                    <div class="glass rounded-[2.5rem] p-7 relative group card-hover ${borderClass}">
+                        ${isAdminActive ? `<button onclick="openACModal('${unit.id}')" class="absolute top-6 right-6 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-blue-600 transition shadow-lg"><i class="fas fa-pencil-alt text-xs text-white"></i></button>` : ''}
+                        
+                        <div class="mb-6">
+                            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">ASSET ${unit.unitid || unit.unitID}</span>
+                            <h3 class="text-xl font-black mt-3 text-white leading-tight">${unit.dept}</h3>
+                        </div>
+
+                        <div class="flex items-center gap-3 mb-8">
+                            <span class="w-3 h-3 rounded-full bg-${statusColor}-500 shadow-[0_0_10px_rgba(0,255,0,0.5)]"></span>
+                            <span class="text-xs font-black uppercase tracking-tighter text-${statusColor}-400">${unit.status}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6 bg-white/5 rounded-3xl p-5 mb-6 border border-white/5">
+                            <div>
+                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Last Sync</p>
+                                <p class="text-xs font-bold text-slate-200 mt-1">${formatDisplayDate(unit.lastpms || unit.lastPMS)}</p>
                             </div>
-                            <p class="text-[11px] text-gray-500 mb-1"><strong>Staff:</strong> ${unit.staff || 'N/A'}</p>
-                            <div class="bg-gray-50 p-3 rounded-xl text-[11px] italic text-gray-500">"${unit.notes || 'No notes.'}"</div>
+                            <div>
+                                <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Target Sync</p>
+                                <p class="text-xs font-bold mt-1 ${isUrgent ? 'text-red-400 animate-pulse' : 'text-blue-400'}">${formatDisplayDate(unit.nextpms || unit.nextPMS)}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-slate-400">
+                            <i class="fas fa-user-circle text-lg"></i>
+                            <span class="text-[11px] font-bold uppercase tracking-tight italic">${unit.staff || 'NO ASSIGNED TECH'}</span>
                         </div>
                     </div>`;
             });
@@ -256,13 +287,12 @@
 
             try {
                 await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(formData) });
-                document.getElementById('statusText').innerText = "Online (Synced)";
-            } catch (e) { document.getElementById('statusText').innerText = "Sync Failed (Local)"; }
+            } catch (e) { }
         }
 
         async function deleteUnit() {
             const id = document.getElementById('editId').value;
-            if(!confirm("Are you sure? This deletes it from Google Sheets too!")) return;
+            if(!confirm("DELETE THIS ASSET PERMANENTLY?")) return;
             units = units.filter(u => u.id !== id);
             localStorage.setItem('ac_tdmh_data', JSON.stringify(units));
             renderUnitGrid();
@@ -270,16 +300,15 @@
             closeACModal();
             try {
                 await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ id: id, action: "DELETE" }) });
-            } catch (e) { console.error("Cloud delete failed"); }
+            } catch (e) { }
         }
 
-        // --- IPAD LOGIN LOGIC ---
         function toggleAdminAuth() {
             if (isAdminActive) {
                 isAdminActive = false;
                 document.getElementById('adminControls').classList.add('hidden');
                 document.getElementById('adminBtn').classList.replace('bg-green-600', 'bg-blue-600');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-lock mr-2"></i>Admin Login';
+                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-fingerprint mr-2"></i> ADMIN ACCESS';
                 renderUnitGrid();
             } else {
                 document.getElementById('loginModal').classList.remove('hidden');
@@ -287,26 +316,20 @@
             }
         }
 
-        function closeLogin() {
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('adminPassInput').value = '';
-        }
-
         function checkAdminPass() {
-            const pass = document.getElementById('adminPassInput').value;
-            if (pass === ADMIN_PASS) {
+            if (document.getElementById('adminPassInput').value === ADMIN_PASS) {
                 isAdminActive = true;
                 document.getElementById('adminControls').classList.remove('hidden');
                 document.getElementById('adminBtn').classList.replace('bg-blue-600', 'bg-green-600');
-                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock mr-2"></i>Log Out';
+                document.getElementById('adminBtn').innerHTML = '<i class="fas fa-unlock-alt mr-2"></i> DEACTIVATE';
                 closeLogin();
                 renderUnitGrid();
             } else {
-                alert("Incorrect Password");
+                alert("ACCESS DENIED");
             }
         }
 
-        // --- HELPERS ---
+        function closeLogin() { document.getElementById('loginModal').classList.add('hidden'); document.getElementById('adminPassInput').value = ''; }
         function checkPMSUrgency(dateStr) { if (!dateStr) return false; const d = new Date(dateStr); const diff = Math.ceil((d - new Date()) / 86400000); return diff <= 5 && diff >= -1; }
         function updateDashboardCounters() {
             document.getElementById('count-green').innerText = units.filter(u => u.status === 'functional').length;
@@ -319,7 +342,7 @@
             const nav = document.getElementById('floorNav');
             nav.innerHTML = '';
             for(let i=1; i<=5; i++) {
-                nav.innerHTML += `<button onclick="setFloor(${i})" class="px-8 py-4 rounded-2xl border transition text-sm font-bold ${currentFloor === i ? 'floor-tab-active shadow-md' : 'bg-white text-gray-600 border-gray-200'}">${i}F</button>`;
+                nav.innerHTML += `<button onclick="setFloor(${i})" class="w-16 h-16 glass rounded-full flex items-center justify-center font-black transition-all ${currentFloor === i ? 'floor-btn-active' : 'text-slate-400'}">${i}F</button>`;
             }
         }
         function openACModal(id = null) {
@@ -333,8 +356,11 @@
                 document.getElementById('fDept').value = u.dept;
                 document.getElementById('fUnitID').value = u.unitid || u.unitID;
                 document.getElementById('fStaff').value = u.staff;
-                document.getElementById('fLastPMS').value = formatForInput(u.lastpms || u.lastPMS);
-                document.getElementById('fNextPMS').value = formatForInput(u.nextpms || u.nextPMS);
+                // Fix for date inputs
+                const d1 = new Date(u.lastpms || u.lastPMS);
+                if(!isNaN(d1)) document.getElementById('fLastPMS').value = d1.toISOString().split('T')[0];
+                const d2 = new Date(u.nextpms || u.nextPMS);
+                if(!isNaN(d2)) document.getElementById('fNextPMS').value = d2.toISOString().split('T')[0];
                 document.getElementById('fNotes').value = u.notes;
             }
             document.getElementById('acModal').classList.remove('hidden');
